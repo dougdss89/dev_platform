@@ -1,2 +1,2 @@
-# dev_plataform
-Devoloping DAB plataform on Databricks
+# dev_platform
+Developing DAB platform on Databricks
