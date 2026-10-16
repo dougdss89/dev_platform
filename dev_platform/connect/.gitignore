@@ -1,0 +1,7 @@
+# Isolated Databricks serverless / databricks-connect environment (managed by
+# `databricks environments setup-local`). pyproject.toml and uv.lock are tracked;
+# the venv is local-only.
+.venv/
+__pycache__/
+*.py[oc]
+.databricks
