@@ -22,11 +22,15 @@ variables:
     default: raw
     description: Raw layer which data in is as-is mode. Dont' do any transformation here. 
     
-  bronze_notebooks:
+  raw_notebooks:
     default: raw
     description: Raw layer which data in is as-is mode. Dont' do any transformation here. 
     
-  bronze_data_contract:
+  raw_data_contract:
+    default: raw
+    description: Raw layer which data in is as-is mode. Dont' do any transformation here. 
+
+  raw_workflows_jobs:
     default: raw
     description: Raw layer which data in is as-is mode. Dont' do any transformation here. 
 
@@ -34,7 +38,31 @@ variables:
     default: trusted
     description: Trusted layer with cleaning data
 
+  trusted_notebooks:
+    default: trusted
+    description: Trusted layer with cleaning data
+
+  trusted_data_contract:
+    default: trusted
+    description: Trusted layer with cleaning data
+
+  trusted_workflows_jobs:
+    default: trusted
+    description: Trusted layer with cleaning data
+
   enriched_schema:
+    default: enriched
+    description: Enriched layer where the data are grouped and measures is created.
+
+  enriched_notebooks:
+    default: enriched
+    description: Enriched layer where the data are grouped and measures is created.
+
+  enriched_data_contract:
+    default: enriched
+    description: Enriched layer where the data are grouped and measures is created.
+
+  enriched_workflows_jobs:
     default: enriched
     description: Enriched layer where the data are grouped and measures is created.
 
