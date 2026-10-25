@@ -26,6 +26,12 @@ If you're developing with an IDE, dependencies for this project should be instal
 *  Make sure you have the UV package manager installed.
    It's an alternative to tools like pip: https://docs.astral.sh/uv/getting-started/installation/.
 *  Run `uv sync --dev` to install the project's dependencies.
+*  Generate the DABs JSON Schema used for `databricks.yml` validation/autocomplete
+   in the editor (requires the `redhat.vscode-yaml` extension, already listed in
+   `.vscode/extensions.json`). This file is gitignored, so run it once after cloning:
+   ```
+   $ databricks bundle schema > .vscode/bundle_config_schema.json
+   ```
 
 
 # Using this project using the CLI

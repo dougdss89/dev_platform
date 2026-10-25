@@ -1,12 +1,10 @@
 # This is a Declarative Automation Bundle definition for dev_platform.
 # See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+# yaml-language-server: $schema=bundle_config_schema.json
+4
 bundle:
   name: advworks_project
   uuid: 3ef93bb8-a5a0-481f-9f94-ee0e41ae0560
-
-include:
-  - resources/*.yml
-  - jobs/*.yml
 
 artifacts:
   python_artifact:
@@ -70,6 +68,10 @@ variables:
     default: /Workspace/Users/egcpdata@gmail.com/.bundle/${bundle.name}/${bundle.target}
     description: Path to the workspace root on Databricks
 
+  gitbundle_application_id:
+    default: 4229c4fd-5bde-4420-bb59-a38d4e3c2f82
+    description: Application (client) ID of the 'gitbundle' service principal used for CI/CD deploys
+
 targets:
   dev:
     # The default target uses 'mode: development' to create a development copy.
@@ -92,7 +94,9 @@ targets:
     mode: production
     workspace:
       host: https://dbc-31b4ebc3-548d.cloud.databricks.com
-      profile: community
+      # No 'profile' here: prod is deployed via service principal (OAuth M2M env
+      # vars: DATABRICKS_HOST/DATABRICKS_CLIENT_ID/DATABRICKS_CLIENT_SECRET) in CI,
+      # and a hardcoded profile conflicts with that auth method.
       # We explicitly deploy to /Workspace/Users/egcpdata@gmail.com to make sure we only have a single copy.
       root_path: ${var.root_path}
 
@@ -106,7 +110,12 @@ targets:
     permissions:
       - user_name: egcpdata@gmail.com
         level: CAN_MANAGE
+      # service_principal_name must be the SP's Application ID (UUID), not its
+      # display name "gitbundle" — the CLI does not resolve the display name here.
+      - service_principal_name: ${var.gitbundle_application_id}
+        level: CAN_MANAGE
 
 
-
-
+include:
+  - resources/*.yml
+  - jobs/*.yml

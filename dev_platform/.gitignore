@@ -4,6 +4,10 @@ dist/
 __pycache__/
 *.egg-info
 .venv/
+
+# Generated DABs JSON Schema used for YAML validation in the editor
+# (regenerate with: databricks bundle schema > .vscode/bundle_config_schema.json)
+.vscode/bundle_config_schema.json
 scratch/**
 !scratch/README.md
 **/explorations/**
