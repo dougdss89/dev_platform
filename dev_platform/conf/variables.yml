@@ -1,0 +1,62 @@
+# Variable DECLARATIONS (defaults + descriptions).
+# Per-environment values are assigned in conf/targets/<env>.yml.
+# Merged into the bundle via the `include` globs in databricks.yml.
+variables:
+  catalog:
+    description: The catalog the resources use (set per target)
+
+  raw_schema:
+    default: raw
+    description: Raw layer where data lands as-is. Don't do any transformation here.
+
+  raw_notebooks:
+    default: raw
+    description: Raw layer where data lands as-is. Don't do any transformation here.
+
+  raw_data_contract:
+    default: raw
+    description: Raw layer where data lands as-is. Don't do any transformation here.
+
+  raw_workflows_jobs:
+    default: raw
+    description: Raw layer where data lands as-is. Don't do any transformation here.
+
+  trusted_schema:
+    default: trusted
+    description: Trusted layer with cleaned data.
+
+  trusted_notebooks:
+    default: trusted
+    description: Trusted layer with cleaned data.
+
+  trusted_data_contract:
+    default: trusted
+    description: Trusted layer with cleaned data.
+
+  trusted_workflows_jobs:
+    default: trusted
+    description: Trusted layer with cleaned data.
+
+  enriched_schema:
+    default: enriched
+    description: Enriched layer where data is grouped and measures are created.
+
+  enriched_notebooks:
+    default: enriched
+    description: Enriched layer where data is grouped and measures are created.
+
+  enriched_data_contract:
+    default: enriched
+    description: Enriched layer where data is grouped and measures are created.
+
+  enriched_workflows_jobs:
+    default: enriched
+    description: Enriched layer where data is grouped and measures are created.
+
+  root_path:
+    default: /Workspace/Users/egcpdata@gmail.com/.bundle/${bundle.name}/${bundle.target}
+    description: Path to the workspace root on Databricks.
+
+  gitbundle_application_id:
+    default: 4229c4fd-5bde-4420-bb59-a38d4e3c2f82
+    description: Application (client) ID of the 'gitbundle' service principal used for CI/CD deploys.

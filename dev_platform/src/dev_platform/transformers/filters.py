@@ -1,7 +1,7 @@
 from pyspark.sql import DataFrame
 from pyspark.sql.column import Column
 
-from dev_platform.core.base import BaseTransformer
+from dev_platform.core.common.transformer import BaseTransformer
 
 
 class FilterInvalidTransformer(BaseTransformer):

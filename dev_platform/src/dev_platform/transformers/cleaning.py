@@ -2,7 +2,7 @@ from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, trim, upper
 from pyspark.sql.types import DataType
 
-from dev_platform.core.base import BaseTransformer
+from dev_platform.core.common.transformer import BaseTransformer
 
 
 class CastTypesTransformer(BaseTransformer):

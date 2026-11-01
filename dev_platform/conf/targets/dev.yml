@@ -1,0 +1,19 @@
+# Environment: DEV
+# Local development copy. Deployed resources are prefixed with '[dev <user>]'
+# and schedules/triggers are paused (mode: development).
+# https://docs.databricks.com/dev-tools/bundles/deployment-modes.html
+targets:
+  dev:
+    mode: development
+    default: true
+
+    workspace:
+      host: https://dbc-31b4ebc3-548d.cloud.databricks.com
+      # 'profile' is fine for local/dev (uses your ~/.databrickscfg). It must NOT
+      # appear on prod, which authenticates via service-principal env vars in CI.
+      profile: community
+
+    variables:
+      # Only the catalog changes per environment; schemas fall back to the
+      # defaults declared in conf/variables.yml.
+      catalog: advworks_dev

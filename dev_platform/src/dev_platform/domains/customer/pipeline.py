@@ -2,9 +2,9 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
 from pyspark.sql.types import BooleanType
 
-from dev_platform.core.io.readers import TableReader
-from dev_platform.core.io.writers import TableMergeWriter
-from dev_platform.core.pipeline import Pipeline
+from dev_platform.core.common.reader import TableReader
+from dev_platform.core.common.writers import TableMergeWriter
+from dev_platform.core.common.pipeline import Pipeline
 from dev_platform.domains.customer.transformers import NormalizePhoneTransformer
 from dev_platform.transformers.cleaning import CastTypesTransformer, CleanStringsTransformer
 from dev_platform.transformers.filters import FilterInvalidTransformer
