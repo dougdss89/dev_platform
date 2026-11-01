@@ -1,0 +1,9 @@
+# Bundle-wide tags, applied to every taggable resource (jobs, pipelines, ...)
+# via presets. Keeps tagging consistent and in one place.
+# Docs: https://docs.databricks.com/dev-tools/bundles/settings.html#presets
+presets:
+  tags:
+    project: advworks
+    bundle: ${bundle.name}
+    environment: ${bundle.target}
+    managed_by: dabs

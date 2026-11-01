@@ -1,6 +1,8 @@
 import logging
 
-from dev_platform.core.base import BaseReader, BaseTransformer, BaseWriter
+from dev_platform.core.common.reader import BaseReader
+from dev_platform.core.common.transformer import BaseTransformer
+from dev_platform.core.common.writers import BaseWriter
 
 logging.basicConfig(
     level=logging.INFO,
