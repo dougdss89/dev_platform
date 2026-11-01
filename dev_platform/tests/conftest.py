@@ -1,0 +1,24 @@
+"""Fixtures de teste — uma SparkSession local compartilhada (sessão inteira)."""
+
+import shutil
+import tempfile
+
+import pytest
+from pyspark.sql import SparkSession
+
+
+@pytest.fixture(scope="session")
+def spark():
+    warehouse = tempfile.mkdtemp(prefix="spark-warehouse-")
+    session = (
+        SparkSession.builder.master("local[1]")
+        .appName("dev_platform-tests")
+        .config("spark.sql.shuffle.partitions", "1")
+        .config("spark.ui.enabled", "false")
+        .config("spark.sql.warehouse.dir", warehouse)
+        .getOrCreate()
+    )
+    session.sparkContext.setLogLevel("ERROR")
+    yield session
+    session.stop()
+    shutil.rmtree(warehouse, ignore_errors=True)

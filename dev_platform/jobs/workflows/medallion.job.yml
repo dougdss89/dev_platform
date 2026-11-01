@@ -1,0 +1,24 @@
+# Orquestrador — ORDENA as camadas (inter-layer) via run_job_task.
+# Não roda código próprio: cada task apenas dispara um job de camada e espera.
+# A ordem raw -> trusted -> (enriched) é o `depends_on` entre essas tasks.
+#   run raw-ingestion
+#        │
+#        ▼
+#   run trusted-build
+#
+# É o análogo, no nível de orquestração, da lista de transformers dentro de uma
+# factory: aqui o que se sequencia são jobs inteiros, não transformações.
+resources:
+  jobs:
+    medallion:
+      name: medallion
+      tasks:
+        - task_key: raw
+          run_job_task:
+            job_id: ${resources.jobs.raw_ingestion.id}
+
+        - task_key: trusted
+          depends_on:
+            - task_key: raw
+          run_job_task:
+            job_id: ${resources.jobs.trusted_build.id}

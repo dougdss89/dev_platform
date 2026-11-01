@@ -25,9 +25,9 @@ class NormalizeMaritalStatus(BaseTransformer):
         for col_name in valid_columns:
             df = df.withColumn(
                 col_name,
-                F.when(F.col(col_name) == "M", "married")
-                 .when(F.col(col_name) == "S", "single")
-                 .otherwise(F.col(col_name))
+                F.when(F.lower(F.col(col_name)) == "m", "married")
+                 .when(F.lower(F.col(col_name)) == "s", "single")
+                 .otherwise(F.lit("Not Available"))
             )
 
         return df
