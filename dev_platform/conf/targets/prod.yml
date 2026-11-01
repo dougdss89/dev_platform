@@ -1,0 +1,24 @@
+# Environment: PROD
+# Production deployment, driven by CI/CD as the 'sp_databricks_bundle' service principal.
+targets:
+  prod:
+    mode: production
+
+    workspace:
+      host: https://dbc-31b4ebc3-548d.cloud.databricks.com
+      # No 'profile' here: prod is deployed via service principal (OAuth M2M env
+      # vars DATABRICKS_HOST/DATABRICKS_CLIENT_ID/DATABRICKS_CLIENT_SECRET) in CI.
+      # A hardcoded profile would conflict with that auth method.
+      # Deploy to a single, explicit path under the deploy identity's workspace.
+      root_path: ${var.root_path}
+
+    variables:
+      catalog: advworks_prd
+
+    permissions:
+      - user_name: egcpdata@gmail.com
+        level: CAN_MANAGE
+      # service_principal_name must be the SP's Application ID (UUID), not its
+      # display name "sp_databricks_bundle" — the CLI does not resolve the display name here.
+      - service_principal_name: ${var.sp_bundle_application_id}
+        level: CAN_MANAGE
