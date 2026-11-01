@@ -4,12 +4,10 @@ version = "0.0.1"
 authors = [{ name = "egcpdata@gmail.com" }]
 requires-python = "==3.12.*"
 dependencies = [
-    # Any dependencies for jobs and pipelines in this project can be added here
-    # See also https://docs.databricks.com/dev-tools/bundles/library-dependencies
-    #
-    # LIMITATION: for pipelines, dependencies are cached during development;
-    # add dependencies to the 'environment' section of your pipeline.yml file instead
-    "delta>=0.4.2",
+    # Em Databricks (serverless/cluster) o pyspark e o delta (delta-spark) já vêm
+    # no runtime — NÃO declarar aqui. O pacote PyPI `delta` é outro projeto e
+    # quebra a instalação do wheel no serverless (ERROR_UNSUPPORTED_PYTHON_VERSION).
+    # Deps reais de job vão no `environments[].spec.dependencies` do job .yml.
 ]
 
 [dependency-groups]
