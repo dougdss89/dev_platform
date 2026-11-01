@@ -1,7 +1,7 @@
-# Camada TRUSTED — um job para todo o build raw -> trusted.
-# Uma task por domínio, em paralelo (sem depends_on entre domínios).
-# Para um domínio novo, acrescente uma task apontando para `<domínio>-trusted`.
-# Compute serverless; o wheel do bundle entra como dependency.
+# TRUSTED layer — a single job for all raw -> trusted builds.
+# One task per domain, running in parallel (no depends_on between domains).
+# To add a new domain, append a task pointing to `<domain>-trusted`.
+# Serverless compute; the bundle wheel is included as a dependency.
 resources:
   jobs:
     trusted_build:

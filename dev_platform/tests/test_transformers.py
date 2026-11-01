@@ -1,6 +1,6 @@
-"""Unit de transformação — DataFrame pequeno in-memory, afirma a saída.
+"""Transformation unit tests — small in-memory DataFrame, asserting the output.
 
-O tipo de teste mais usado em engenharia de dados: barato, rápido, sem cluster.
+The most common test type in data engineering: cheap, fast, no cluster required.
 """
 
 from pyspark.testing import assertDataFrameEqual

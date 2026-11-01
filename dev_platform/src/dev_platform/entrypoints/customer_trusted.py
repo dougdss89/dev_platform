@@ -1,7 +1,7 @@
 """Entrypoint (composition root) — customer raw -> trusted.
 
-Mesma ideia do customer_ingest: driver fino, zero regra. Troca só qual factory
-é montada. O DABs chama este entry point depois do landing->raw (depends_on).
+Same design as customer_ingest: thin driver, zero business logic. Only changes
+which factory is wired. DABs invokes this entry point after landing -> raw (depends_on).
 """
 
 import sys

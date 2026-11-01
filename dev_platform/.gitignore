@@ -1,19 +1,46 @@
-.databricks/
+# ─── Databricks Asset Bundle ──────────────────────────────────────────
+.databricks/                 # local bundle state (deploy metadata / cache)
+
+# ─── Python: build & packaging ────────────────────────────────────────
 build/
 dist/
-connect/
-__pycache__/
-*.egg-info
-.venv/
+*.egg-info/
+*.whl
 
-# Generated DABs JSON Schema used for YAML validation in the editor
-# (regenerate with: databricks bundle schema > .vscode/bundle_config_schema.json)
+# ─── Python: caches & virtualenvs ─────────────────────────────────────
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ─── Local Databricks Connect env ─────────────────────────────────────
+# Separate venv for local exploration. pyproject.toml/uv.lock stay tracked
+# (they define the env); the venv, state, and scratch notebooks do not.
+connect/.venv/
+connect/.databricks/
+connect/*.ipynb
+
+# ─── Editor (VS Code) ─────────────────────────────────────────────────
+# Ignore local cruft, keep shared config checked in.
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+# Generated DABs JSON Schema for editor YAML validation
+# (regenerate: databricks bundle schema > .vscode/bundle_config_schema.json)
 .vscode/bundle_config_schema.json
+*../.vscode
+# ─── Secrets / local env ──────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ─── Scratch & explorations (keep the READMEs) ────────────────────────
 scratch/**
 !scratch/README.md
 **/explorations/**
-**/!explorations/README.md
-.ruff_cache/
-.venv/
-.vscode/
-.pytest_cache/
+!**/explorations/README.md
+*.bak

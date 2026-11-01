@@ -19,9 +19,10 @@ include:
   - conf/variables.yml     # variable declarations (defaults + descriptions)
   - conf/tags.yml          # bundle-wide tags (presets.tags)
   - conf/targets/*.yml     # one file per environment (dev, prod)
+  - conf/schemas.yml       # Unity Catalog schemas as bundle resources
   - resources/*.yml        # pipelines, jobs, volumes, dashboards, ...
-  # jobs organizados por camada (jobs/workflows/<layer>/<name>.job.yml).
-  # O `**` do DABs casa só um nível, então listamos as profundidades usadas:
+  # Jobs organized by layer (jobs/workflows/<layer>/<name>.job.yml).
+  # DABs `**` matches only one directory level, so we list the depths used:
   - jobs/*.yml
   - jobs/*/*.yml
   - jobs/*/*/*.yml
