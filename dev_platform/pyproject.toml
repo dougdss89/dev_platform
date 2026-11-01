@@ -2,7 +2,9 @@
 name = "dev_platform"
 version = "0.0.1"
 authors = [{ name = "egcpdata@gmail.com" }]
-requires-python = "==3.12.*"
+# >=3.10 para o wheel instalar no serverless (Python 3.11), não só em 3.12.
+# O código usa apenas sintaxe 3.10+ (uniões `X | Y`, `list[str]`).
+requires-python = ">=3.10"
 dependencies = [
     # Em Databricks (serverless/cluster) o pyspark e o delta (delta-spark) já vêm
     # no runtime — NÃO declarar aqui. O pacote PyPI `delta` é outro projeto e
