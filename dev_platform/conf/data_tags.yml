@@ -1,0 +1,144 @@
+# Data governance tags for the AdventureWorks landing datasets
+# (example.raw.landing_data) once materialized as Unity Catalog tables.
+#
+# This is the single source of truth: the ingestion pipeline reads it and applies
+# each entry as UC tags (ALTER TABLE ... SET TAGS) when it registers the raw table.
+# Tags here are dataset/table-level; column-level PII tagging can be layered later.
+#
+# Taxonomy
+#   layer          raw | trusted | enriched
+#   source_system  adventureworks
+#   domain         sales | purchasing | production | reference
+#   entity_type    dimension | fact
+#   sensitivity    public | internal | confidential | restricted   (classification level)
+#   contains_pii   true | false                                    (personal data present)
+#   grain          facts only, e.g. sales_order_line
+
+defaults:
+  layer: raw
+  source_system: adventureworks
+
+datasets:
+  # ---------------- Sales ----------------
+  customer:
+    domain: sales
+    entity_type: dimension
+    sensitivity: restricted      # direct identifiers + demographics/financials
+    contains_pii: true           # name, email, phone, address, birthdate, income, gender
+  salesperson:
+    domain: sales
+    entity_type: dimension
+    sensitivity: confidential    # employee personal data + compensation
+    contains_pii: true           # loginid, birthdate, rate, bonus, commissionpct
+  store:
+    domain: sales
+    entity_type: dimension
+    sensitivity: confidential    # contact person + store financials
+    contains_pii: true           # firstname/lastname; AnnualSales/Revenue, BankName
+  promotion:
+    domain: sales
+    entity_type: dimension
+    sensitivity: internal
+    contains_pii: false
+  salesreason:
+    domain: sales
+    entity_type: dimension
+    sensitivity: public
+    contains_pii: false
+  freight:
+    domain: sales
+    entity_type: dimension
+    sensitivity: internal
+    contains_pii: false
+  fact_sales:
+    domain: sales
+    entity_type: fact
+    grain: sales_order_line
+    sensitivity: internal
+    contains_pii: false          # revenue; FK to customer (no direct PII columns)
+
+  # -------------- Purchasing --------------
+  buyer:
+    domain: purchasing
+    entity_type: dimension
+    sensitivity: confidential    # employee personal data
+    contains_pii: true           # firstname/lastname, loginid, birthdate, gender
+  supplier:
+    domain: purchasing
+    entity_type: dimension
+    sensitivity: confidential    # contact PII + commercial-sensitive terms
+    contains_pii: true           # contact name/phone; creditrating, standardprice
+  fact_purchase:
+    domain: purchasing
+    entity_type: fact
+    grain: purchase_order_line
+    sensitivity: internal
+    contains_pii: false
+
+  # -------------- Production --------------
+  product:
+    domain: production
+    entity_type: dimension
+    sensitivity: internal        # listprice, standardcost (margin)
+    contains_pii: false
+  productcategory:
+    domain: production
+    entity_type: dimension
+    sensitivity: public
+    contains_pii: false
+  scrapreason:
+    domain: production
+    entity_type: dimension
+    sensitivity: public
+    contains_pii: false
+  transactioncode:
+    domain: production
+    entity_type: dimension
+    sensitivity: internal
+    contains_pii: false
+  warehouse:
+    domain: production
+    entity_type: dimension
+    sensitivity: internal
+    contains_pii: false
+  fact_production:
+    domain: production
+    entity_type: fact
+    grain: work_order
+    sensitivity: internal
+    contains_pii: false
+
+  # -------------- Reference ---------------
+  date:
+    domain: reference
+    entity_type: dimension
+    sensitivity: public
+    contains_pii: false
+  countryregion:
+    domain: reference
+    entity_type: dimension
+    sensitivity: public
+    contains_pii: false
+  stateprovince:
+    domain: reference
+    entity_type: dimension
+    sensitivity: public
+    contains_pii: false
+  currencycode:
+    domain: reference
+    entity_type: dimension
+    sensitivity: public
+    contains_pii: false
+  currency_rate:
+    domain: reference
+    entity_type: dimension       # landed as a dim; grain is code+date
+    sensitivity: internal
+    contains_pii: false
+
+  # ---------------- Other -----------------
+  stress_test:
+    domain: reference
+    entity_type: dimension
+    sensitivity: internal
+    purpose: test                # load-test dataset; exclude from production catalog
+    contains_pii: false

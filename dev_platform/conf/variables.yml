@@ -1,0 +1,62 @@
+# Variable DECLARATIONS (defaults + descriptions).
+# Per-environment values are assigned in conf/targets/<env>.yml.
+# Merged into the bundle via the `include` globs in databricks.yml.
+variables:
+  catalog:
+    description: The catalog the resources use (set per target)
+
+  raw_schema:
+    default: raw
+    description: Raw layer where data lands as-is. Don't do any transformation here.
+
+  raw_notebooks:
+    default: raw
+    description: Raw layer where data lands as-is. Don't do any transformation here.
+
+  raw_data_contract:
+    default: raw
+    description: Raw layer where data lands as-is. Don't do any transformation here.
+
+  raw_workflows_jobs:
+    default: raw
+    description: Raw layer where data lands as-is. Don't do any transformation here.
+
+  trusted_schema:
+    default: trusted
+    description: Trusted layer with cleaned data.
+
+  trusted_notebooks:
+    default: trusted
+    description: Trusted layer with cleaned data.
+
+  trusted_data_contract:
+    default: trusted
+    description: Trusted layer with cleaned data.
+
+  trusted_workflows_jobs:
+    default: trusted
+    description: Trusted layer with cleaned data.
+
+  enriched_schema:
+    default: enriched
+    description: Enriched layer where data is grouped and measures are created.
+
+  enriched_notebooks:
+    default: enriched
+    description: Enriched layer where data is grouped and measures are created.
+
+  enriched_data_contract:
+    default: enriched
+    description: Enriched layer where data is grouped and measures are created.
+
+  enriched_workflows_jobs:
+    default: enriched
+    description: Enriched layer where data is grouped and measures are created.
+
+  root_path:
+    default: /Workspace/Users/egcpdata@gmail.com/.bundle/${bundle.name}/${bundle.target}
+    description: Path to the workspace root on Databricks.
+
+  sp_bundle_application_id:
+    default: ce5fe75d-894b-4176-ac65-d25eb9569e95
+    description: Application (client) ID of the 'sp_databricks_bundle' service principal used for CI/CD deploys.

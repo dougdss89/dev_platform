@@ -14,6 +14,24 @@
         "**/.gitkeep": "markdown"
     },
 
+    // Validate databricks.yml / databricks.yaml against the DABs JSON Schema
+    // (generated via `databricks bundle schema`). Requires the redhat.vscode-yaml
+    // extension (see extensions.json).
+    "yaml.schemas": {
+        // Only the files that are part of the bundle (matched by `include` in
+        // databricks.yml) validate against the DABs schema. conf/data_tags.yml is
+        // a plain data file, not bundle config, so it is intentionally excluded.
+        ".vscode/bundle_config_schema.json": [
+            "databricks.yml",
+            "databricks.yaml",
+            "conf/variables.yml",
+            "conf/tags.yml",
+            "conf/targets/*.yml",
+            "resources/**/*.yml",
+            "jobs/**/*.yml"
+        ]
+    },
+
     // Pylance settings (VS Code)
     // Set typeCheckingMode to "basic" to enable type checking!
     "python.analysis.typeCheckingMode": "off",
