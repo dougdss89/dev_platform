@@ -5,8 +5,8 @@ from dev_platform.core.common.transformer import BaseTransformer
 
 
 class NormalizePhoneTransformer(BaseTransformer):
-    """Remove máscara de telefone: '230-555-0191' -> '2305550191'.
-    Específico do domínio customer — só essa entidade tem phonenumber.
+    """Strips phone number formatting: '230-555-0191' -> '2305550191'.
+    Specific to the customer domain — only this entity has phonenumber.
     """
 
     def transform(self, df: DataFrame) -> DataFrame:
