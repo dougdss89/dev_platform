@@ -20,4 +20,8 @@ include:
   - conf/tags.yml          # bundle-wide tags (presets.tags)
   - conf/targets/*.yml     # one file per environment (dev, prod)
   - resources/*.yml        # pipelines, jobs, volumes, dashboards, ...
+  # jobs organizados por camada (jobs/workflows/<layer>/<name>.job.yml).
+  # O `**` do DABs casa só um nível, então listamos as profundidades usadas:
   - jobs/*.yml
+  - jobs/*/*.yml
+  - jobs/*/*/*.yml

@@ -25,9 +25,9 @@ class NormalizeGender(BaseTransformer):
         for col_name in valid_columns:
             df = df.withColumn(
                 col_name,
-                F.when(F.col(col_name) == "M", "male")
-                 .when(F.col(col_name) == "F", "female")
-                 .otherwise(F.col(col_name))
+                F.when(F.lower(F.col(col_name)) == "m", "male")
+                 .when(F.lower(F.col(col_name)) == "f", "female")
+                 .otherwise(F.lit("Not Available"))
             )
 
         return df

@@ -430,6 +430,10 @@ dev = [
     { name = "pytest" },
     { name = "ruff" },
 ]
+test = [
+    { name = "pyspark" },
+    { name = "pytest" },
+]
 
 [package.metadata]
 requires-dist = [{ name = "delta", specifier = ">=0.4.2" }]
@@ -441,6 +445,10 @@ dev = [
     { name = "ipykernel" },
     { name = "pytest" },
     { name = "ruff" },
+]
+test = [
+    { name = "pyspark", specifier = "~=4.1.0" },
+    { name = "pytest" },
 ]
 
 [[package]]
@@ -844,6 +852,15 @@ sdist = { url = "https://files.pythonhosted.org/packages/b0/77/a5b8c569bf593b014
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c7/21/705964c7812476f378728bdf590ca4b771ec72385c533964653c68e86bdc/pygments-2.19.2-py3-none-any.whl", hash = "sha256:86540386c03d588bb81d44bc3928634ff26449851e99741617ecb9037ee5ec0b", size = 1225217, upload-time = "2025-06-21T13:39:07.939Z" },
 ]
+
+[[package]]
+name = "pyspark"
+version = "4.1.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "py4j" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/98/d6/46ba9775802e578eb853bca200bf079327a2e8bb801684913041400ee287/pyspark-4.1.4.tar.gz", hash = "sha256:bcbd5e18690cf79d438e97210ad06fb8d451a251bb77becc2b0418868d2acd73", size = 455589214, upload-time = "2026-10-27T18:17:29.272Z" }
 
 [[package]]
 name = "pytest"

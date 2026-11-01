@@ -20,9 +20,17 @@ dev = [
     "databricks-connect~=18.0.0",
     "ipykernel",
 ]
+# Grupo de teste ISOLADO: pyspark vanilla (roda local[*]), sem databricks-connect
+# — que só suporta sessão remota e sombrearia o pyspark. O CI usa só este grupo.
+test = [
+    "pytest",
+    "pyspark~=4.1.0",
+]
 
 [project.scripts]
-main = "dev_platform.main:main"
+# Cada entry point vira o alvo de um python_wheel_task no job do bundle.
+customer-ingest = "dev_platform.entrypoints.customer_ingest:main"
+customer-trusted = "dev_platform.entrypoints.customer_trusted:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -30,6 +38,11 @@ build-backend = "hatchling.build"
 
 [tool.ruff]
 line-length = 120
+
+[tool.pytest.ini_options]
+# Resolve o pacote a partir de src/ sem precisar instalar (vale local e no CI).
+pythonpath = ["src"]
+testpaths = ["tests"]
 
 [tool.databricks.environment]
 environment_version = "5"

@@ -57,6 +57,6 @@ variables:
     default: /Workspace/Users/egcpdata@gmail.com/.bundle/${bundle.name}/${bundle.target}
     description: Path to the workspace root on Databricks.
 
-  gitbundle_application_id:
-    default: 4229c4fd-5bde-4420-bb59-a38d4e3c2f82
-    description: Application (client) ID of the 'gitbundle' service principal used for CI/CD deploys.
+  sp_bundle_application_id:
+    default: ce5fe75d-894b-4176-ac65-d25eb9569e95
+    description: Application (client) ID of the 'sp_databricks_bundle' service principal used for CI/CD deploys.
