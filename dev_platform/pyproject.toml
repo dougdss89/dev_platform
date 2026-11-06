@@ -2,9 +2,9 @@
 name = "dev_platform"
 version = "0.0.1"
 authors = [{ name = "egcpdata@gmail.com" }]
-# >=3.10 so the wheel installs on serverless (Python 3.11), not only on 3.12.
-# The codebase uses only 3.10+ syntax (`X | Y` unions, `list[str]`).
-requires-python = ">=3.10"
+# Lower bound 3.11 so the wheel installs on serverless (Python 3.11); upper
+# bound <3.13 so uv/CI resolve on 3.11-3.12 (pyspark 4.1 wheels, no 3.14).
+requires-python = ">=3.11,<3.13"
 dependencies = [
     # On Databricks (serverless/cluster), pyspark and delta (delta-spark) are
     # already provided by the runtime — DO NOT declare them here. The PyPI `delta`
@@ -21,7 +21,6 @@ dev = [
     "pytest",
     "ruff",
     "ipykernel",
-    "databricks-connect~=18.0.0",
 ]
 # ISOLATED test group: vanilla pyspark (runs on local[*]), without databricks-connect
 # — which only supports remote sessions and would shadow pyspark. CI uses only this group.
