@@ -19,7 +19,7 @@ include:
   - conf/variables.yml     # variable declarations (defaults + descriptions)
   - conf/tags.yml          # bundle-wide tags (presets.tags)
   - conf/targets/*.yml     # one file per environment (dev, prod)
-  - conf/schemas.yml       # Unity Catalog schemas as bundle resources
+  # schemas are provisioned by Terraform (infra/), not the bundle — single owner.
   - resources/*.yml        # pipelines, jobs, volumes, dashboards, ...
   # Jobs organized by layer (jobs/workflows/<layer>/<name>.job.yml).
   # DABs `**` matches only one directory level, so we list the depths used:
