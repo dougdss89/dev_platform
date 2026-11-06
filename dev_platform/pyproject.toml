@@ -21,6 +21,7 @@ dev = [
     "pytest",
     "ruff",
     "ipykernel",
+    "databricks-connect~=18.0.0",
 ]
 # ISOLATED test group: vanilla pyspark (runs on local[*]), without databricks-connect
 # — which only supports remote sessions and would shadow pyspark. CI uses only this group.
@@ -34,6 +35,7 @@ test = [
 customer-ingest = "dev_platform.entrypoints.customer_ingest:main"
 customer-trusted = "dev_platform.entrypoints.customer_trusted:main"
 apply-tags = "dev_platform.entrypoints.apply_tags:main"
+seed-customer = "dev_platform.entrypoints.seed_customer:main"
 
 [build-system]
 requires = ["hatchling"]
