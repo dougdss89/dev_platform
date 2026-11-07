@@ -17,6 +17,7 @@ from dev_platform.core.common.pipeline import Pipeline
 from dev_platform.core.common.reader import LoggingReader, TableReader, VolumeParquetReader
 from dev_platform.core.common.transformer import LoggingTransformer
 from dev_platform.core.common.writers import LoggingWriter, TableMergeWriter, TableWriter
+from dev_platform.domains.customer.rules.customercreditranking import DeriveCustomerCreditRanking
 from dev_platform.domains.customer.rules.customerincometransformer import DeriveCustomerIncome
 from dev_platform.domains.customer.rules.customertypetransformer import DeriveCustomerType
 from dev_platform.domains.customer.rules.phonetransformer import NormalizePhoneTransformer
@@ -95,6 +96,7 @@ def build_customer_trusted(spark: SparkSession, catalog: str) -> Pipeline:
             # so inserted_date still exists as the tie-breaker.
             LoggingTransformer(DeduplicateTransformer(keys="customerid", order_by="inserted_date")),
             LoggingTransformer(DeriveCustomerIncome(columns=["YearlyIncome"])),
+            LoggingTransformer(DeriveCustomerCreditRanking(columns=["minincome"])),
             LoggingTransformer(EmailFlagTransformer(columns=["emailaddress"])),
             LoggingTransformer(DeriveCustomerType(columns=["persontype"])),
             LoggingTransformer(DropColumnsTransformer(columns=RAW_METADATA_COLUMNS)),
