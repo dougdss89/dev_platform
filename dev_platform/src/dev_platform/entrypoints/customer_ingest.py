@@ -1,9 +1,9 @@
 """Entrypoint (composition root) — customer landing -> raw.
 
-Camada "suja" do padrão: é o ÚNICO lugar que resolve a SparkSession e lê
-parâmetros do job. Nenhuma regra de negócio aqui — só monta a factory e dispara
-``.run()``. O DABs chama este entry point via ``python_wheel_task``, passando o
-catálogo como parâmetro posicional (sys.argv[1]).
+"Impure" edge of the pattern: this is the ONLY place that resolves the
+SparkSession and reads job parameters. No business logic lives here — it only
+wires the factory and triggers ``.run()``. DABs invokes this entry point via
+``python_wheel_task``, passing the catalog as a positional argument (sys.argv[1]).
 """
 
 import sys

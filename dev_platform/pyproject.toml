@@ -2,45 +2,54 @@
 name = "dev_platform"
 version = "0.0.1"
 authors = [{ name = "egcpdata@gmail.com" }]
-# >=3.10 para o wheel instalar no serverless (Python 3.11), não só em 3.12.
-# O código usa apenas sintaxe 3.10+ (uniões `X | Y`, `list[str]`).
-requires-python = ">=3.10"
+# Lower bound 3.11 so the wheel installs on serverless (Python 3.11); upper
+# bound <3.13 so uv/CI resolve on 3.11-3.12 (pyspark 4.1 wheels, no 3.14).
+requires-python = ">=3.11,<3.13"
 dependencies = [
-    # Em Databricks (serverless/cluster) o pyspark e o delta (delta-spark) já vêm
-    # no runtime — NÃO declarar aqui. O pacote PyPI `delta` é outro projeto e
-    # quebra a instalação do wheel no serverless (ERROR_UNSUPPORTED_PYTHON_VERSION).
-    # Deps reais de job vão no `environments[].spec.dependencies` do job .yml.
+    # On Databricks (serverless/cluster), pyspark and delta (delta-spark) are
+    # already provided by the runtime — DO NOT declare them here. The PyPI `delta`
+    # package is an unrelated project and breaks wheel installation on serverless
+    # (ERROR_UNSUPPORTED_PYTHON_VERSION).
+    # Actual job dependencies belong in `environments[].spec.dependencies` in the job .yml.
 ]
 
 [dependency-groups]
+# Databricks Connect lives in the isolated connect/ subproject, NOT here: it
+# requires Python >=3.12 and would clash with this wheel's requires-python >=3.10
+# (needed so the wheel installs on serverless 3.11) and shadow vanilla pyspark.
 dev = [
     "pytest",
     "ruff",
-    "databricks-dlt",
-    "databricks-connect~=18.0.0",
     "ipykernel",
 ]
-# Grupo de teste ISOLADO: pyspark vanilla (roda local[*]), sem databricks-connect
-# — que só suporta sessão remota e sombrearia o pyspark. O CI usa só este grupo.
+# ISOLATED test group: vanilla pyspark (runs on local[*]), without databricks-connect
+# — which only supports remote sessions and would shadow pyspark. CI uses only this group.
 test = [
     "pytest",
     "pyspark~=4.1.0",
 ]
 
 [project.scripts]
-# Cada entry point vira o alvo de um python_wheel_task no job do bundle.
+# Each entry point becomes the target of a python_wheel_task in the bundle job.
 customer-ingest = "dev_platform.entrypoints.customer_ingest:main"
 customer-trusted = "dev_platform.entrypoints.customer_trusted:main"
+apply-tags = "dev_platform.entrypoints.apply_tags:main"
+seed-customer = "dev_platform.entrypoints.seed_customer:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+# Ship the governance taxonomy inside the wheel so the tag applier can read it at
+# runtime (load_taxonomy). conf/data_tags.yml stays the single editable source.
+[tool.hatch.build.targets.wheel.force-include]
+"conf/data_tags.yml" = "dev_platform/governance/data_tags.yml"
+
 [tool.ruff]
 line-length = 120
 
 [tool.pytest.ini_options]
-# Resolve o pacote a partir de src/ sem precisar instalar (vale local e no CI).
+# Resolves the package from src/ without requiring an editable install (works locally and in CI).
 pythonpath = ["src"]
 testpaths = ["tests"]
 

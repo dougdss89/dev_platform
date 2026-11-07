@@ -11,8 +11,8 @@ logging.basicConfig(
 
 
 class Pipeline:
-    """Template Method: a ordem read -> transform* -> write é fixa;
-    o que varia em cada chamada são as estratégias injetadas no construtor.
+    """Template Method: the read -> transform* -> write order is fixed;
+    what varies per call are the strategies injected into the constructor.
     """
 
     def __init__(
@@ -29,14 +29,14 @@ class Pipeline:
         self.logger = logging.getLogger(f"pipeline.{name}")
 
     def run(self):
-        self.logger.info("Iniciando pipeline")
+        self.logger.info("Starting pipeline")
         df = self.reader.read()
 
-        # Chain of Responsibility: cada transformer recebe o df do anterior e passa adiante.
+        # Chain of Responsibility: each transformer receives the DataFrame from the previous one and passes it along.
         for transformer in self.transformers:
-            self.logger.info("Aplicando %s", transformer.__class__.__name__)
+            self.logger.info("Applying %s", transformer.__class__.__name__)
             df = transformer.transform(df)
 
         self.writer.write(df)
-        self.logger.info("Pipeline concluído")
+        self.logger.info("Pipeline completed")
         return df

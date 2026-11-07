@@ -5,7 +5,7 @@ from dev_platform.core.common.transformer import BaseTransformer
 
 
 class FilterInvalidTransformer(BaseTransformer):
-    """Remove registros que violam as regras informadas (lista de expressões Column)."""
+    """Filters out records that violate the given rules (list of Column expressions)."""
 
     def __init__(self, rules: list[Column]):
         self.rules = rules

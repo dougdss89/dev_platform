@@ -1,4 +1,4 @@
-"""Fixtures de teste — uma SparkSession local compartilhada (sessão inteira)."""
+"""Test fixtures — a shared local SparkSession (session-scoped)."""
 
 import shutil
 import tempfile

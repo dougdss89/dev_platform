@@ -6,7 +6,7 @@ from dev_platform.core.common.transformer import BaseTransformer
 
 
 class CastTypesTransformer(BaseTransformer):
-    """Aplica casts de tipo a colunas específicas. schema_map: coluna -> tipo Spark."""
+    """Applies type casts to specific columns. schema_map: column -> Spark DataType."""
 
     def __init__(self, schema_map: dict[str, DataType]):
         self.schema_map = schema_map
@@ -18,7 +18,7 @@ class CastTypesTransformer(BaseTransformer):
 
 
 class CleanStringsTransformer(BaseTransformer):
-    """Remove espaços e padroniza para uppercase nas colunas informadas."""
+    """Trims whitespace and normalizes values to uppercase in the specified columns."""
 
     def __init__(self, columns: list[str]):
         self.columns = columns

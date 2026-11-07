@@ -1,0 +1,14 @@
+# Repo-root ignores. Bundle-specific ones live in dev_platform/.gitignore.
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+
+# Repo-root tooling (subfolders manage their own)
+/.vscode/
+/.ruff_cache/
+/.venv/
+
+# Python bytecode anywhere in the tree
+__pycache__/
+*.py[cod]
