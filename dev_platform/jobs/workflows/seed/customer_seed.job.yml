@@ -23,7 +23,7 @@ resources:
           spec:
             environment_version: "2"
             dependencies:
-              - ../../dist/*.whl
+              - ../../../dist/*.whl
 
       schedule:
         quartz_cron_expression: "0 0/30 * * * ?"   # every 30 minutes
