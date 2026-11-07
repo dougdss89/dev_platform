@@ -1,8 +1,8 @@
-"""Contrato de schema — afirma colunas/tipos da saída trusted do customer.
+"""Schema contract — asserts columns and types of the customer trusted output.
 
-Aplica a cadeia de transformers da factory (sem reader/writer) sobre um df
-raw-like e verifica o contrato da trusted: chave long, phonenumber string,
-HomeOwnerFlag boolean e nenhuma coluna de metadados de origem sobrando.
+Applies the factory's transformer chain (without reader/writer) to a raw-like
+DataFrame and verifies the trusted contract: long key, string phonenumber,
+boolean HomeOwnerFlag, and no leftover source metadata columns.
 """
 
 from unittest.mock import MagicMock
@@ -31,7 +31,7 @@ def test_trusted_schema_contract(spark):
     )
     df = spark.createDataFrame([row], schema)
 
-    # reader/writer não são exercitados; só a lista de transformers da factory.
+    # reader/writer are not exercised; only the factory's transformer list is tested.
     pipeline = build_customer_trusted(MagicMock(), "advworks_dev")
     for transformer in pipeline.transformers:
         df = transformer.transform(df)
@@ -41,4 +41,4 @@ def test_trusted_schema_contract(spark):
     assert dtypes["phonenumber"] == "string"
     assert dtypes["HomeOwnerFlag"] == "boolean"
     for col in RAW_METADATA_COLUMNS:
-        assert col not in df.columns, f"coluna de origem não deveria sobrar: {col}"
+        assert col not in df.columns, f"source metadata column should not remain: {col}"

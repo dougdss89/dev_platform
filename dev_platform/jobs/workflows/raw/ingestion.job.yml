@@ -1,8 +1,8 @@
-# Camada RAW — um job para toda a ingestão landing -> raw.
-# Uma task por domínio, SEM depends_on entre elas: domínios são independentes,
-# então rodam em paralelo. Para adicionar um domínio novo, acrescente uma task
-# aqui apontando para o entry point `<domínio>-ingest`.
-# Compute serverless; o wheel do bundle entra como dependency.
+# RAW layer — a single job for all landing -> raw ingestion.
+# One task per domain, with NO depends_on between them: domains are independent,
+# so they run in parallel. To add a new domain, append a task here pointing to
+# the `<domain>-ingest` entry point.
+# Serverless compute; the bundle wheel is included as a dependency.
 resources:
   jobs:
     raw_ingestion:

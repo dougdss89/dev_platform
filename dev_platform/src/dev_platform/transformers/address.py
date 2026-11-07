@@ -1,7 +1,8 @@
-"""Address standardization — genérico, reusável por qualquer dimensão com endereço.
+"""Address standardization — generic and reusable across any dimension with an address.
 
-Expande abreviações de logradouro e separa número/texto. Serve store, customer,
-etc.; a coluna de entrada é parâmetro. Log fica a cargo do LoggingTransformer.
+Expands street type abbreviations and splits street number from street name.
+Works for store, customer, etc.; the input column is configurable. Logging is
+handled by LoggingTransformer.
 """
 
 from functools import reduce
@@ -11,8 +12,8 @@ from pyspark.sql.functions import col, regexp_extract, regexp_replace, trim
 
 from dev_platform.core.common.transformer import BaseTransformer
 
-# Abreviação (regex, case-insensitive, word-boundary) -> forma completa.
-# A ORDEM importa: aplicadas de cima pra baixo. É dado, não código — fácil revisar/estender.
+# Abbreviation (regex, case-insensitive, word-boundary) -> full form.
+# ORDER matters: applied top to bottom. Treated as data, not code — easy to review/extend.
 STREET_ABBREVIATIONS = {
     r"(?i)\bln\b": "Lane",
     r"(?i)\brd\b": "Road",
@@ -30,18 +31,18 @@ STREET_ABBREVIATIONS = {
 
 
 class StandardizeAddressTransformer(BaseTransformer):
-    """Expande abreviações de logradouro e separa número/texto do endereço.
+    """Expands street type abbreviations and separates street number from street text.
 
-    Gera duas colunas novas:
-      * ``addressnumber`` — primeiro número encontrado;
-      * ``custaddress``   — texto do endereço (só letras), sem número, trimado.
+    Generates two new columns:
+      * ``addressnumber`` — first number found;
+      * ``custaddress``   — address text (letters only), without numbers, trimmed.
     """
 
     def __init__(self, column: str = "addressline1"):
         self._column = column
 
     def transform(self, df: DataFrame) -> DataFrame:
-        # Dobra os 12 regexp_replace numa única expressão -> um withColumn só.
+        # Folds all 12 regexp_replace calls into a single expression -> one withColumn call.
         expanded = reduce(
             lambda c, kv: regexp_replace(c, kv[0], kv[1]),
             STREET_ABBREVIATIONS.items(),

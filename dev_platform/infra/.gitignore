@@ -1,0 +1,10 @@
+# Terraform working dir and provider binaries
+.terraform/
+# State can contain secrets — never commit it (use a remote backend for teams)
+*.tfstate
+*.tfstate.*
+crash.log
+# Local variable values (keep the .example tracked)
+*.tfvars
+!*.tfvars.example
+# NOTE: .terraform.lock.hcl is intentionally NOT ignored — commit it (it pins provider versions).

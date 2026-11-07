@@ -1,6 +1,7 @@
-"""Composição/wiring — afirma que as factories montam reader/transformers/writer
-certos. Usa a sessão real (a fixture `spark`) porque a factory da trusted avalia
-expressões `col(...)` na construção, o que exige um SparkContext ativo."""
+"""Composition/wiring — asserts that factories wire the expected reader,
+transformers, and writer. Uses the real session (`spark` fixture) because the
+trusted factory evaluates `col(...)` expressions at construction time, which
+requires an active SparkContext."""
 
 from dev_platform.domains.customer.pipeline import (
     build_customer_raw_ingestion,

@@ -1,11 +1,11 @@
 """Customer domain pipelines — one factory per medallion layer transition.
 
-Molde para os demais domínios: a classe ``Pipeline`` é sempre a mesma; o que
-muda em cada camada são as três estratégias injetadas (reader / transformers /
-writer). Cada factory monta UM ``Pipeline`` e nada mais — quem dispara o
-``.run()`` é o entrypoint, e a ordem entre camadas é o DAG do job.
+Template for other domains: the ``Pipeline`` class is always the same; what
+changes in each layer are the three injected strategies (reader / transformers /
+writer). Each factory wires a SINGLE ``Pipeline`` and nothing else — triggering
+``.run()`` is the entrypoint's job, and the inter-layer order is defined by the job DAG.
 
-    landing (parquet no volume)  --build_customer_raw_ingestion-->  raw
+    landing (parquet in volume)  --build_customer_raw_ingestion-->  raw
     raw                          --build_customer_trusted------->    trusted
 """
 
@@ -22,7 +22,7 @@ from dev_platform.transformers.cleaning import CastTypesTransformer, CleanString
 from dev_platform.transformers.filters import FilterInvalidTransformer
 from dev_platform.transformers.metadata import DropColumnsTransformer, MetadataTransformer
 
-# Colunas de metadados do sistema de origem que chegam na raw e não têm lugar na trusted.
+# Source system metadata columns that land in raw and do not belong in trusted.
 RAW_METADATA_COLUMNS = ["inserted_date", "modified_date", "eltversion", "_rescued_data", "extracted_date", "__metadata__"]
 
 
@@ -31,11 +31,11 @@ def build_customer_raw_ingestion(
     catalog: str,
     landing_catalog: str = "example",
 ) -> Pipeline:
-    """landing -> raw: só persiste o dado "como chegou" + metadados de ingestão.
+    """landing -> raw: persists data as-is + ingestion metadata.
 
-    Nenhuma regra de negócio aqui — a raw é o system-of-record auditável.
-    ``landing_catalog`` é o catálogo onde está o volume de pouso (parquet),
-    que pode ser diferente do catálogo de destino do projeto.
+    No business rules here — raw is the auditable system of record.
+    ``landing_catalog`` is the catalog hosting the landing volume (parquet),
+    which may differ from the project's target catalog.
     """
     return Pipeline(
         name="customer-landing-to-raw",
@@ -49,25 +49,25 @@ def build_customer_raw_ingestion(
 
 
 def build_customer_trusted(spark: SparkSession, catalog: str) -> Pipeline:
-    """raw -> trusted: normalização genérica + tratamentos especializados do domínio.
+    """raw -> trusted: generic normalization + domain-specific transformations.
 
-    A ORDEM da lista é deliberada (cada transformer recebe o df do anterior):
-      1) tipagem      -> antes de qualquer validação/normalização por tipo;
-      2) normalização genérica (vem de ``transformers/``, reusável);
-      3) especializados do domínio (vêm de ``domains/customer/``);
-      4) filtros de qualidade e descarte de colunas de origem.
+    The list ORDER is deliberate (each transformer receives the DataFrame from the previous one):
+      1) type casting -> before any type-dependent validation or normalization;
+      2) generic normalization (from ``transformers/``, reusable);
+      3) domain-specific transformations (from ``domains/customer/``);
+      4) quality filters and dropping source metadata columns.
     """
     return Pipeline(
         name="customer-raw-to-trusted",
         reader=TableReader(spark, table=f"{catalog}.raw.customer"),
         transformers=[
-            # 1) tipagem
+            # 1) type casting
             CastTypesTransformer(schema_map={"HomeOwnerFlag": BooleanType()}),
-            # 2) normalização genérica
+            # 2) generic normalization
             CleanStringsTransformer(columns=["city", "statename", "firstname", "lastname"]),
-            # 3) especializado do domínio customer
+            # 3) customer domain-specific transformation
             NormalizePhoneTransformer(),
-            # 4) qualidade + limpeza de metadados de origem
+            # 4) data quality + source metadata cleanup
             FilterInvalidTransformer(
                 rules=[
                     col("customerid").isNotNull(),
