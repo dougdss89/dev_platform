@@ -1,9 +1,9 @@
 # SEED job — writes small synthetic customer batches to the landing volume on a
 # schedule (the "keeps writing" cadence). Promotes with the bundle to dev/prod.
 #
-# In dev (mode: development) the schedule is auto-paused, so it only runs when you
-# trigger it. In prod (mode: production) it runs on the cron below.
-# Cost: serverless STANDARD, tiny batch; tune the cron / pause when not training.
+# Schedule ships PAUSED in both dev and prod — trigger the job manually while
+# training. Flip pause_status to UNPAUSED when you actually want the 30-min cadence.
+# Cost: serverless STANDARD, tiny batch; keep it paused when not training.
 resources:
   jobs:
     customer_seed:
@@ -28,6 +28,6 @@ resources:
       schedule:
         quartz_cron_expression: "0 0/30 * * * ?"   # every 30 minutes
         timezone_id: UTC
-        pause_status: UNPAUSED
+        pause_status: PAUSED   # training: trigger manually; flip to UNPAUSED only when you want the cadence
 
       performance_target: STANDARD
