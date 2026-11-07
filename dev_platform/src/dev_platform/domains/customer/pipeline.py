@@ -113,9 +113,9 @@ def build_customer_trusted(spark: SparkSession, catalog: str) -> Pipeline:
                 table=f"{catalog}.trusted.customer",
                 merge_key="customerid",
                 schema_evolution=True,
-                # Liquid clustering on the merge key: every MERGE probes the table on
-                # customerid, so clustering by it speeds up file pruning.
-                cluster_by=["customerid"],
+                # Liquid clustering on the merge key plus the region code: every MERGE
+                # probes the table on customerid, so clustering by it speeds up file pruning.
+                cluster_by=["customerid", "countryregioncode"],
             ),
         ),
     )
