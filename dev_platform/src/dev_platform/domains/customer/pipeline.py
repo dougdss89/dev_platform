@@ -27,6 +27,9 @@ from dev_platform.transformers.dedup import DeduplicateTransformer
 from dev_platform.transformers.email import EmailFlagTransformer
 from dev_platform.transformers.filters import FilterInvalidTransformer
 from dev_platform.transformers.metadata import DropColumnsTransformer, MetadataTransformer
+from dev_platform.transformers.normalizeagebydate import DeriveAgeByDate
+from dev_platform.transformers.normalizegender import NormalizeGender
+from dev_platform.transformers.normalizemaritalstatus import NormalizeMaritalStatus
 
 # Source system metadata columns that land in raw and do not belong in trusted.
 RAW_METADATA_COLUMNS = [
@@ -95,10 +98,13 @@ def build_customer_trusted(spark: SparkSession, catalog: str) -> Pipeline:
             # customer-address); keep the latest ingestion. Runs before DropColumns
             # so inserted_date still exists as the tie-breaker.
             LoggingTransformer(DeduplicateTransformer(keys="customerid", order_by="inserted_date")),
+            LoggingTransformer(DeriveAgeByDate(columns=["BirthDate"])),
             LoggingTransformer(DeriveCustomerIncome(columns=["YearlyIncome"])),
             LoggingTransformer(DeriveCustomerCreditRanking(columns=["minincome"])),
-            LoggingTransformer(EmailFlagTransformer(columns=["emailaddress"])),
             LoggingTransformer(DeriveCustomerType(columns=["persontype"])),
+            LoggingTransformer(NormalizeGender(columns=["Gender"])),
+            LoggingTransformer(NormalizeMaritalStatus(columns=["MaritalStatus"])),
+            LoggingTransformer(EmailFlagTransformer(columns=["emailaddress"])),
             LoggingTransformer(DropColumnsTransformer(columns=RAW_METADATA_COLUMNS)),
         ],
         writer=LoggingWriter(

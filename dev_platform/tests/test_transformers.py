@@ -3,6 +3,8 @@
 The most common test type in data engineering: cheap, fast, no cluster required.
 """
 
+import datetime as dt
+
 from pyspark.sql import SparkSession
 from pyspark.testing import assertDataFrameEqual
 
@@ -11,6 +13,7 @@ from dev_platform.domains.customer.rules.customerincometransformer import Derive
 from dev_platform.domains.customer.rules.phonetransformer import NormalizePhoneTransformer
 from dev_platform.transformers.address import StandardizeAddressTransformer
 from dev_platform.transformers.dedup import DeduplicateTransformer
+from dev_platform.transformers.normalizeagebydate import DeriveAgeByDate
 from dev_platform.transformers.normalizegender import NormalizeGender
 from dev_platform.transformers.normalizemaritalstatus import NormalizeMaritalStatus
 
@@ -99,3 +102,23 @@ def test_credit_ranking_skips_non_decimal_column(spark: SparkSession):
     df = spark.createDataFrame([("25001",)], ["minincome"])
     out = DeriveCustomerCreditRanking(columns=["minincome"]).transform(df)
     assert "incomeclass" not in out.columns
+
+
+def test_derive_age_by_date(spark: SparkSession):
+    # Dates ~6 months either side of a 30th birthday keep the test stable on any day of the year.
+    today = dt.date.today()
+    base = dt.date(today.year - 30, today.month, min(today.day, 28))
+    older = base - dt.timedelta(days=183)
+    younger = base + dt.timedelta(days=183)
+    df = spark.createDataFrame([(older,), (younger,), (None,)], "BirthDate date")
+
+    out = DeriveAgeByDate(columns=["BirthDate"]).transform(df)
+
+    assert dict(out.dtypes)["BirthDate_age"] == "int"
+    assert [r["BirthDate_age"] for r in out.collect()] == [30, 29, None]
+
+
+def test_derive_age_skips_non_date_column(spark: SparkSession):
+    df = spark.createDataFrame([("1990-01-01",)], ["BirthDate"])
+    out = DeriveAgeByDate(columns=["BirthDate"]).transform(df)
+    assert "BirthDate_age" not in out.columns
