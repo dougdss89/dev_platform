@@ -31,12 +31,13 @@ class TableReader(BaseReader):
         TableReader(spark, table="advworks_dev.raw.customer")
     """
 
-    def __init__(self, spark: SparkSession, table: str):
+    def __init__(self, spark: SparkSession, table: str, options: dict[str, str] | None = None):
         self._spark = spark
         self._table = table
+        self._options = options or {}
 
     def read(self) -> DataFrame:
-        return self._spark.read.table(self._table)
+        return self._spark.read.options(**self._options).table(self._table)
 
 
 class VolumeParquetReader(BaseReader):
@@ -47,9 +48,10 @@ class VolumeParquetReader(BaseReader):
         VolumeParquetReader(spark, path="/Volumes/example/raw/landing_data/customer")
     """
 
-    def __init__(self, spark: SparkSession, path: str):
+    def __init__(self, spark: SparkSession, path: str, options: dict[str, str] | None = None):
         self._spark = spark
         self._path = path
+        self._options = options or {}
 
     @classmethod
     def for_landing(
@@ -59,12 +61,13 @@ class VolumeParquetReader(BaseReader):
         dataset: str,
         schema: str = "raw",
         volume: str = "landing_data",
+        options: dict[str, str] | None = None,
     ) -> "VolumeParquetReader":
         """Builds the reader for the project's landing layout."""
-        return cls(spark, path=f"/Volumes/{catalog}/{schema}/{volume}/{dataset}")
+        return cls(spark, path=f"/Volumes/{catalog}/{schema}/{volume}/{dataset}", options=options)
 
     def read(self) -> DataFrame:
-        return self._spark.read.parquet(self._path)
+        return self._spark.read.options(**self._options).parquet(self._path)
 
 
 class LoggingReader(BaseReader):
