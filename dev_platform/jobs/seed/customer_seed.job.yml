@@ -7,7 +7,7 @@
 resources:
   jobs:
     customer_seed:
-      name: customer-seed
+      name: customer_seed
       tasks:
         - task_key: seed
           python_wheel_task:

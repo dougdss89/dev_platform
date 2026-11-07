@@ -19,6 +19,7 @@ from dev_platform.core.common.writers import TableMergeWriter, TableWriter
 from dev_platform.domains.customer.transformers import NormalizePhoneTransformer
 from dev_platform.transformers.audit import AuditTransformer
 from dev_platform.transformers.cleaning import CastTypesTransformer, CleanStringsTransformer
+from dev_platform.transformers.dedup import DeduplicateTransformer
 from dev_platform.transformers.filters import FilterInvalidTransformer
 from dev_platform.transformers.metadata import DropColumnsTransformer, MetadataTransformer
 
@@ -74,6 +75,10 @@ def build_customer_trusted(spark: SparkSession, catalog: str) -> Pipeline:
                     col("emailaddress").contains("@"),
                 ]
             ),
+            # 5) one row per merge key BEFORE the merge (raw keeps one row per
+            # customer-address); keep the latest ingestion. Runs before DropColumns
+            # so inserted_date still exists as the tie-breaker.
+            DeduplicateTransformer(keys="customerid", order_by="inserted_date"),
             DropColumnsTransformer(columns=RAW_METADATA_COLUMNS),
         ],
         writer=TableMergeWriter(spark, table=f"{catalog}.trusted.customer", merge_key="customerid"),
