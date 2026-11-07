@@ -12,3 +12,6 @@ Thumbs.db
 # Python bytecode anywhere in the tree
 __pycache__/
 *.py[cod]
+
+# Pylance-generated stubs
+/typings/
