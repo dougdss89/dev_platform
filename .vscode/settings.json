@@ -1,4 +1,12 @@
 {
     "jupyter.interactiveWindow.cellMarker.codeRegex": "^# COMMAND ----------|^# Databricks notebook source|^(#\\s*%%|#\\s*\\<codecell\\>|#\\s*In\\[\\d*?\\]|#\\s*In\\[ \\])",
-    "jupyter.interactiveWindow.cellMarker.default": "# COMMAND ----------"
+    "jupyter.interactiveWindow.cellMarker.default": "# COMMAND ----------",
+
+    // The bundle lives in a subfolder; point Pylance at its source root so
+    // `import dev_platform...` resolves (pytest gets this from pyproject.toml).
+    "python.analysis.extraPaths": ["dev_platform/src"],
+
+    // Same as dev_platform/.vscode/settings.json: no type checking. Strict mode
+    // floods the PySpark code with "partially unknown" errors from pyspark's own stubs.
+    "python.analysis.typeCheckingMode": "off"
 }
