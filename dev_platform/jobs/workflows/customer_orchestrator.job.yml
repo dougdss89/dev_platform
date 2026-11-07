@@ -10,15 +10,21 @@
 # a factory: here we sequence entire jobs rather than individual transformations.
 resources:
   jobs:
-    medallion:
-      name: medallion
+    customer_orchestrator:
+      name: customer_orchestrator
       tasks:
-        - task_key: raw
+        - task_key: seed
           run_job_task:
-            job_id: ${resources.jobs.raw_ingestion.id}
+            job_id: ${resources.jobs.customer_seed.id}
 
+        - task_key: raw_customer_ingestion
+          depends_on:
+            - task_key: seed
+          run_job_task:
+            job_id: ${resources.jobs.raw_customer_ingestion.id}
+            
         - task_key: trusted
           depends_on:
-            - task_key: raw
+            - task_key: raw_customer_ingestion
           run_job_task:
-            job_id: ${resources.jobs.trusted_build.id}
+            job_id: ${resources.jobs.trusted_customer_ingestion.id}
