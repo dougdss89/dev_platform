@@ -5,3 +5,4 @@
 __pycache__/
 *.py[oc]
 .databricks
+query_databricks.ipynb
