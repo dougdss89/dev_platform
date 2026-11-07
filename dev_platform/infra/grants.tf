@@ -6,7 +6,8 @@ resource "databricks_grants" "layer_write" {
   schema = "${local.catalog}.${each.key}"
   grant {
     principal  = var.sp_application_id
-    privileges = ["USE_SCHEMA", "CREATE_TABLE", "MODIFY"]
+    # SELECT is separate from MODIFY in Unity Catalog: trusted reads raw, and MERGE reads its target.
+    privileges = ["USE_SCHEMA", "CREATE_TABLE", "MODIFY", "SELECT"]
   }
 
 }

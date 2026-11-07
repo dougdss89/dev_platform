@@ -144,26 +144,14 @@ class TableMergeWriter(BaseWriter):
         condition = " AND ".join(f"t.{k} = s.{k}" for k in self._keys)
         target = DeltaTable.forName(self._spark, self._table)
 
-        conf_key = "spark.databricks.delta.schema.autoMerge.enabled"
-        previous_value: str | None = self._spark.conf.get(conf_key, "false")
+        merge = target.alias("t").merge(df.alias("s"), condition)
 
+        # Per-MERGE schema evolution. The session conf
+        # spark.databricks.delta.schema.autoMerge.enabled is rejected on serverless.
         if self._schema_evolution:
-            self._spark.conf.set(conf_key, "true")
+            merge = merge.withSchemaEvolution()
 
-        try:
-            (
-                target.alias("t")
-                .merge(df.alias("s"), condition)
-                .whenMatchedUpdateAll()
-                .whenNotMatchedInsertAll()
-                .execute()
-            )
-        finally:
-            if self._schema_evolution:
-                if previous_value is None:
-                    self._spark.conf.unset(conf_key)
-                else:
-                    self._spark.conf.set(conf_key, previous_value)
+        merge.whenMatchedUpdateAll().whenNotMatchedInsertAll().execute()
 
 
 class LoggingWriter(BaseWriter):
