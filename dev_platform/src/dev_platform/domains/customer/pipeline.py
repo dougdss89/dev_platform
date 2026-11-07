@@ -17,6 +17,7 @@ from dev_platform.core.common.pipeline import Pipeline
 from dev_platform.core.common.reader import LoggingReader, TableReader, VolumeParquetReader
 from dev_platform.core.common.transformer import LoggingTransformer
 from dev_platform.core.common.writers import LoggingWriter, TableMergeWriter, TableWriter
+from dev_platform.domains.customer.rules.customercreditranking import DeriveCustomerCreditRanking
 from dev_platform.domains.customer.rules.customerincometransformer import DeriveCustomerIncome
 from dev_platform.domains.customer.rules.customertypetransformer import DeriveCustomerType
 from dev_platform.domains.customer.rules.phonetransformer import NormalizePhoneTransformer
@@ -26,6 +27,9 @@ from dev_platform.transformers.dedup import DeduplicateTransformer
 from dev_platform.transformers.email import EmailFlagTransformer
 from dev_platform.transformers.filters import FilterInvalidTransformer
 from dev_platform.transformers.metadata import DropColumnsTransformer, MetadataTransformer
+from dev_platform.transformers.normalizeagebydate import DeriveAgeByDate
+from dev_platform.transformers.normalizegender import NormalizeGender
+from dev_platform.transformers.normalizemaritalstatus import NormalizeMaritalStatus
 
 # Source system metadata columns that land in raw and do not belong in trusted.
 RAW_METADATA_COLUMNS = [
@@ -94,9 +98,13 @@ def build_customer_trusted(spark: SparkSession, catalog: str) -> Pipeline:
             # customer-address); keep the latest ingestion. Runs before DropColumns
             # so inserted_date still exists as the tie-breaker.
             LoggingTransformer(DeduplicateTransformer(keys="customerid", order_by="inserted_date")),
+            LoggingTransformer(DeriveAgeByDate(columns=["BirthDate"])),
             LoggingTransformer(DeriveCustomerIncome(columns=["YearlyIncome"])),
-            LoggingTransformer(EmailFlagTransformer(columns=["emailaddress"])),
+            LoggingTransformer(DeriveCustomerCreditRanking(columns=["minincome"])),
             LoggingTransformer(DeriveCustomerType(columns=["persontype"])),
+            LoggingTransformer(NormalizeGender(columns=["Gender"])),
+            LoggingTransformer(NormalizeMaritalStatus(columns=["MaritalStatus"])),
+            LoggingTransformer(EmailFlagTransformer(columns=["emailaddress"])),
             LoggingTransformer(DropColumnsTransformer(columns=RAW_METADATA_COLUMNS)),
         ],
         writer=LoggingWriter(
@@ -105,9 +113,9 @@ def build_customer_trusted(spark: SparkSession, catalog: str) -> Pipeline:
                 table=f"{catalog}.trusted.customer",
                 merge_key="customerid",
                 schema_evolution=True,
-                # Liquid clustering on the merge key: every MERGE probes the table on
-                # customerid, so clustering by it speeds up file pruning.
-                cluster_by=["customerid"],
+                # Liquid clustering on the merge key plus the region code: every MERGE
+                # probes the table on customerid, so clustering by it speeds up file pruning.
+                cluster_by=["customerid", "countryregioncode"],
             ),
         ),
     )
