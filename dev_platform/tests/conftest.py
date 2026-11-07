@@ -2,13 +2,14 @@
 
 import shutil
 import tempfile
+from collections.abc import Iterator
 
 import pytest
 from pyspark.sql import SparkSession
 
 
 @pytest.fixture(scope="session")
-def spark():
+def spark() -> Iterator[SparkSession]:
     warehouse = tempfile.mkdtemp(prefix="spark-warehouse-")
     session = (
         SparkSession.builder.master("local[1]")

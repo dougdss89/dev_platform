@@ -7,12 +7,13 @@ boolean HomeOwnerFlag, and no leftover source metadata columns.
 
 from unittest.mock import MagicMock
 
+from pyspark.sql import SparkSession
 from pyspark.sql.types import LongType, StringType, StructField, StructType
 
 from dev_platform.domains.customer.pipeline import RAW_METADATA_COLUMNS, build_customer_trusted
 
 
-def test_trusted_schema_contract(spark):
+def test_trusted_schema_contract(spark: SparkSession):
     schema = StructType(
         [
             StructField("customerid", LongType()),
@@ -26,9 +27,7 @@ def test_trusted_schema_contract(spark):
         ]
         + [StructField(c, StringType()) for c in RAW_METADATA_COLUMNS]
     )
-    row = (1, "a@b.com", "NY", "NY", "john", "doe", "230-555-0191", "true") + tuple(
-        "x" for _ in RAW_METADATA_COLUMNS
-    )
+    row = (1, "a@b.com", "NY", "NY", "john", "doe", "230-555-0191", "true") + tuple("x" for _ in RAW_METADATA_COLUMNS)
     df = spark.createDataFrame([row], schema)
 
     # reader/writer are not exercised; only the factory's transformer list is tested.
