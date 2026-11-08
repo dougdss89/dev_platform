@@ -130,16 +130,16 @@ small, independently releasable slice. Scope may change as work progresses.
 
 Make every later deploy reproducible and safe.
 
-- [ ] Commit GitHub Actions workflows: CI on pull requests
+- [x] Commit GitHub Actions workflows: CI on pull requests
       (`bundle validate -t prod` + `pytest`) and CD on push to `main`
       (`bundle deploy -t prod` as the service principal).
-- [ ] Remove the leftover `pyproject.toml.bak` and tidy the repo root.
+- [x] Remove the leftover `pyproject.toml.bak` and tidy the repo root.
 
 ### Deploy 2: Customer trusted completeness
 
-- [ ] Wire `DeriveCustomerType` and `DeriveCustomerIncome` into
+- [x] Wire `DeriveCustomerType` and `DeriveCustomerIncome` into
       `build_customer_trusted` (after fixing their known bugs).
-- [ ] Extend the schema-contract test to cover the derived columns.
+- [x] Extend the schema-contract test to cover the derived columns.
 
 ### Deploy 3: Data quality and idempotency
 
