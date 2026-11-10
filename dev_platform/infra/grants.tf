@@ -24,4 +24,3 @@ resource "databricks_grant" "landing_read" {
     principal  = var.sp_application_id
     privileges = ["READ_VOLUME", "WRITE_VOLUME"]
   }
-
