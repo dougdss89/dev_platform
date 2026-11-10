@@ -21,6 +21,7 @@ from dev_platform.domains.customer.rules.customercreditranking import DeriveCust
 from dev_platform.domains.customer.rules.customerincometransformer import DeriveCustomerIncome
 from dev_platform.domains.customer.rules.customertypetransformer import DeriveCustomerType
 from dev_platform.domains.customer.rules.phonetransformer import NormalizePhoneTransformer
+from dev_platform.transformers.fillnullvalues import FillNullValues
 from dev_platform.transformers.audit import AuditTransformer
 from dev_platform.transformers.cleaning import CastTypesTransformer, CleanStringsTransformer
 from dev_platform.transformers.tolower import NormalizeString
@@ -41,6 +42,8 @@ RAW_METADATA_COLUMNS = [
     "_rescued_data",
     "extracted_date",
     "__metadata__",
+    "YearlyIncome",
+    "addressline1",    
 ]
 
 
@@ -110,6 +113,7 @@ def build_customer_trusted(spark: SparkSession, catalog: str) -> Pipeline:
             LoggingTransformer(NormalizeGender(columns=["Gender"])),
             LoggingTransformer(NormalizeMaritalStatus(columns=["MaritalStatus"])),
             LoggingTransformer(EmailFlagTransformer(columns=["emailaddress"])),
+            LoggingTransformer(FillNullValues(columns=["addressline2", "custaddress"])),
             LoggingTransformer(DropColumnsTransformer(columns=RAW_METADATA_COLUMNS)),
         ],
         writer=LoggingWriter(
