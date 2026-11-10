@@ -1,0 +1,11 @@
+resources:
+  jobs:
+    teste_job:
+      name: Teste_Job
+      email_notifications: {}
+      max_concurrent_runs: 1
+      performance_target: PERFORMANCE_OPTIMIZED
+      queue:
+        enabled: true
+      timeout_seconds: 0
+      webhook_notifications: {}
