@@ -87,7 +87,7 @@ def build_customer_trusted(spark: SparkSession, catalog: str) -> Pipeline:
             LoggingTransformer(CleanStringsTransformer(columns=["city", "statename", "firstname", "lastname"])),
             LoggingTransformer(NormalizeString(columns=["city", "statename", "firstname", "lastname", "persontype"])),
             LoggingTransformer(NormalizeString(columns=["city", "statename", "firstname", "lastname", "persontype"])),
-            LoggingTransformer(StandardizeAddressTransformer()),
+            LoggingTransformer(StandardizeAddressTransformer("addressline1")),
             # 3) customer domain-specific transformation
             LoggingTransformer(NormalizePhoneTransformer()),
             # 4) data quality + source metadata cleanup
