@@ -23,6 +23,8 @@ from dev_platform.domains.customer.rules.customertypetransformer import DeriveCu
 from dev_platform.domains.customer.rules.phonetransformer import NormalizePhoneTransformer
 from dev_platform.transformers.audit import AuditTransformer
 from dev_platform.transformers.cleaning import CastTypesTransformer, CleanStringsTransformer
+from dev_platform.transformers.tolower import NormalizeString
+from dev_platform.transformers.address import StandardizeAddressTransformer
 from dev_platform.transformers.dedup import DeduplicateTransformer
 from dev_platform.transformers.email import EmailFlagTransformer
 from dev_platform.transformers.filters import FilterInvalidTransformer
@@ -83,6 +85,9 @@ def build_customer_trusted(spark: SparkSession, catalog: str) -> Pipeline:
             LoggingTransformer(CastTypesTransformer(schema_map={"HomeOwnerFlag": BooleanType()})),
             # 2) generic normalization
             LoggingTransformer(CleanStringsTransformer(columns=["city", "statename", "firstname", "lastname"])),
+            LoggingTransformer(NormalizeString(columns=["city", "statename", "firstname", "lastname", "persontype"])),
+            LoggingTransformer(NormalizeString(columns=["city", "statename", "firstname", "lastname", "persontype"])),
+            LoggingTransformer(StandardizeAddressTransformer()),
             # 3) customer domain-specific transformation
             LoggingTransformer(NormalizePhoneTransformer()),
             # 4) data quality + source metadata cleanup
