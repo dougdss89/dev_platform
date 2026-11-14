@@ -53,10 +53,9 @@ variables:
     default: enriched
     description: Enriched layer where data is grouped and measures are created.
 
-  root_path:
-    default: /Workspace/Users/egcpdata@gmail.com/.bundle/${bundle.name}/${bundle.target}
-    description: Path to the workspace root on Databricks.
 
   sp_bundle_application_id:
-    default: ce5fe75d-894b-4176-ac65-d25eb9569e95
+    # TODO: replace with the Application ID of the service principal created in the NEW prod
+    # account/workspace (service principals are account-level: the old one does not exist there).
+    default: 00000000-0000-0000-0000-000000000000
     description: Application (client) ID of the 'sp_databricks_bundle' service principal used for CI/CD deploys.
