@@ -19,7 +19,8 @@ variable "prd_catalog" {
 variable "sp_application_id" {
   description = "Application ID of the sp_databricks_bundle service principal"
   type        = string
-  default     = "ce5fe75d-894b-4176-ac65-d25eb9569e95"
+  # TODO: set to the SP created in the new prod account (pass via -var or a tfvars file).
+  default     = "00000000-0000-0000-0000-000000000000"
 }
 
 variable "landing_volume_path" {
