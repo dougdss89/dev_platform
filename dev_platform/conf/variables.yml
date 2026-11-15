@@ -55,7 +55,6 @@ variables:
 
 
   sp_bundle_application_id:
-    # TODO: replace with the Application ID of the service principal created in the NEW prod
-    # account/workspace (service principals are account-level: the old one does not exist there).
-    default: 00000000-0000-0000-0000-000000000000
-    description: Application (client) ID of the 'sp_databricks_bundle' service principal used for CI/CD deploys.
+    # Service principals are account-level: this is the one from the prod account/workspace.
+    default: 43bd6c8a-108b-4a96-a8af-aea768ab292e
+    description: Application (client) ID of the 'sp_databricks_bundle_prd' service principal used for CI/CD deploys.
