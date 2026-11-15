@@ -9,7 +9,7 @@
 locals {
   catalogs = {
     default = "advworks_dev"
-    prd     = "advworks_prd"
+    prd     = "advworks"
     prod    = "advworks_prd"
   }
   catalog = local.catalogs[terraform.workspace]

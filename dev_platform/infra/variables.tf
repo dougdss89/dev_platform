@@ -13,7 +13,7 @@ variable "catalog" {
 variable "prd_catalog" {
   description = "Data catalog used for production deployments"
   type        = string
-  default     = "advworks_prd"
+  default     = "advworks"
 }
 
 variable "sp_application_id" {

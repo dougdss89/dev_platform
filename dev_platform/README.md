@@ -88,7 +88,7 @@ Entry points (declared in `pyproject.toml`): `customer-ingest`,
 | Target | Catalog | Mode | Auth |
 |--------|---------|------|------|
 | `dev` (default) | `advworks_dev` | `development` (schedules paused) | CLI profile |
-| `prod` | `advworks_prd` | `production` | Service principal (OAuth M2M) |
+| `prod` | `advworks` | `production` | Service principal (OAuth M2M) |
 
 ## Getting started
 
