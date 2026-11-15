@@ -12,7 +12,7 @@ locals {
 
 resource "databricks_schema" "layers" {
   for_each     = local.layers
-  catalog_name = local.catalog
+  catalog_name = databricks_catalog.this.name
   name         = each.key
   comment      = each.value
 }
