@@ -1,8 +1,18 @@
 # Terraform root for platform/UC infra (catalog, schemas, SP, grants).
 # DABs still owns the workloads (jobs/wheel) — keep the two from managing the
 # same resource.
+# Workspace -> catalog. A lookup (not a ternary) so an unexpected workspace name errors out
+# instead of silently planning against advworks_dev.
+#   default -> dev workspace (original account)
+#   prd     -> NEW prod workspace/account (apply with -var databricks_profile=<prd profile>)
+#   prod    -> legacy state of the old prod objects (kept until they are retired)
 locals {
-  catalog = terraform.workspace == "prod" ? "advworks_prd" : "advworks_dev"
+  catalogs = {
+    default = "advworks_dev"
+    prd     = "advworks"
+    prod    = "advworks_prd"
+  }
+  catalog = local.catalogs[terraform.workspace]
 }
 terraform {
   required_version = ">= 1.6"

@@ -18,7 +18,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     env:
-      DATABRICKS_HOST: https://dbc-31b4ebc3-548d.cloud.databricks.com
+      DATABRICKS_HOST: https://dbc-ea2c3f22-c40e.cloud.databricks.com
       DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
       DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
     steps:
