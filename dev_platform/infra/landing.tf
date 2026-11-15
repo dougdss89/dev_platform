@@ -9,6 +9,12 @@ resource "databricks_catalog" "landing" {
   count   = var.create_landing_volume ? 1 : 0
   name    = local.landing[0]
   comment = "Landing zone for source files"
+
+  # Same reason as databricks_catalog.this (imported Default Storage catalog).
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [storage_root]
+  }
 }
 
 resource "databricks_schema" "landing" {
