@@ -19,7 +19,7 @@ targets:
       catalog: advworks_prd
 
     permissions:
-      - user_name: egcpdata@gmail.com
+      - user_name: saldanha.s.douglas@gmail.com
         level: CAN_MANAGE
       # service_principal_name must be the SP's Application ID (UUID), not its
       # display name "sp_databricks_bundle" — the CLI does not resolve the display name here.
