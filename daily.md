@@ -9,6 +9,8 @@ Uma seção por dia, e dentro dela uma subseção por PR (PRs parecidos viram um
 - [2026-11-01: primeiro pipeline, CI/CD e deploy](#2026-11-01--primeiro-pipeline-cicd-e-deploy)
 - [2026-11-06: Terraform, seeder e CI](#2026-11-06--terraform-seeder-e-ci)
 - [2026-11-07: bind, dedup, options, regras de domínio e permissões](#2026-11-07--bind-dedup-options-regras-de-domínio-e-permissões)
+- [2026-11-10: orquestrador e ajustes de endereço](#2026-11-10--orquestrador-e-ajustes-de-endereço)
+- [2026-11-14 e 2026-11-15: novo workspace de prd](#2026-11-14-e-2026-11-15--novo-workspace-de-prd)
 
 ## Como consolidar no fim do dia
 
@@ -179,3 +181,58 @@ Poucos detalhes: o histórico desta conversa começa depois. Fica só o que o Gi
 - Working tree limpo: o que sobrou (mover `apply_tags` para `utils/`, `splitcolumn.py` e a remoção de `fixtures/.gitkeep`) foi guardado em `git stash`.
 - **Pendente:** o entry point `apply-tags` do `pyproject.toml:36` aponta para `entrypoints/apply_tags.py`. Se o arquivo voltar a sair daquela pasta, o entry point quebra.
 - **Pendente:** rodar o orquestrador em prod depois do deploy do #39, para provar o fix do MERGE.
+
+
+## 2026-11-10 — orquestrador e ajustes de endereço
+
+Só tenho o que os commits dizem; o que não foi registrado na hora fica como "sem registro".
+
+### PR #44 + #45 — orquestrador de jobs e transformers de endereço
+- **O que mudou:**
+  - **#44:** job `customer_orchestrator` (sequencia seed → raw → trusted), job `teste_job`, e `StandardizeAddressTransformer` passa a receber `addressline1`.
+  - **#45:** `FillNullValues` para `addressline2` e `custaddress`; `RAW_METADATA_COLUMNS` ganha `YearlyIncome` e `addressline1`.
+- **Motivo:** rodar as camadas em ordem por um único job, e preencher nulos de endereço em vez de deixar vazio.
+- **Erros e correções:** sem registro.
+- **O que aprendi:** sem registro.
+- **O que melhorar:** o #45 deixou o teste `test_schema_contract` vermelho (ver 2026-11-14). Rodar `pytest` local antes de abrir PR.
+
+
+## 2026-11-14 e 2026-11-15 — novo workspace de prd
+
+Prd passou a ser uma conta e um workspace próprios (`dbc-ea2c3f22-c40e`, id 7474653833427612). Dev continua no workspace antigo.
+
+### PR (número a definir) — branch `chore/new-prd-workspace`
+- **O que mudou:**
+  - Alvo `prod`, `ci.yml` e `cd.yml` apontam para o workspace novo. `root_path` fica na pasta da SP (sem e-mail pessoal).
+  - SP nova `sp_databricks_bundle_prd` (`43bd6c8a-…`) no `variables.yml`. No Terraform o padrão continua sendo a SP do dev; o prd recebe `-var sp_application_id`.
+  - Catálogo do prd renomeado para `advworks` (schemas `raw`, `trusted`, `enriched` dentro dele). Dev segue `advworks_dev`.
+  - Terraform: catálogo como recurso (`catalog.tf`), volume de landing gerenciado só no prd (`landing.tf`, flag `create_landing_volume`), mapa workspace → catálogo no `main.tf`.
+  - `permissions` do prod: dono do prd (`saldanha.s.douglas`) no lugar do `egcpdata` (dono do dev).
+  - Genie Space como código (JSON + `scripts/deploy_genie_space.py`); a pasta de destino vem do usuário autenticado.
+  - Correção do teste `test_schema_contract`.
+- **Motivo:** o deploy passa a simular promoção real dev → prod entre contas. Service principal é objeto da conta, então prd precisa de uma própria.
+- **Erros e correções:**
+  - `bundle validate -t prod` com host do profile ≠ host do bundle → eu estava na branch antiga; validei num worktree da branch certa.
+  - `DIRECTORY_PROTECTED` em `/Workspace/Users/0000…` → era o SP placeholder; passou com o Application ID real.
+  - `Metastore storage root URL does not exist` ao criar o catálogo pelo Terraform → conta com Default Storage não cria catálogo pela API sem `storage_root`. Criei por SQL (`CREATE CATALOG`) e fiz `terraform import`. A suposição de que a API criaria foi minha.
+  - O apply tentou **apagar** os catálogos importados (`Catalog is not empty`) → o `storage_root` importado é ForceNew e a config não o declarava. Correção: `ignore_changes = [storage_root]` + `prevent_destroy = true`. Nada foi apagado porque `force_destroy` é falso.
+  - `Schema 'advworks.raw' does not exist` nos grants → o grant citava o schema só pelo nome, sem dependência. Correção: `depends_on`. No dev nunca apareceu porque os schemas já existiam.
+  - `Error acquiring the state lock` → havia um `terraform apply` rodando. Esperei terminar; não forcei unlock.
+  - `git push` recusado (`without workflow scope`) → `gh auth refresh -s workflow`; o remote passou a SSH.
+  - CI: `AMBIGUOUS_REFERENCE YearlyIncome` → o teste declarava `YearlyIncome` e também adicionava `RAW_METADATA_COLUMNS`, que agora o contém. O teste ignora o que já declarou. O erro já existia na `main` desde o #45.
+  - Um commit levou o Genie junto por engano (arquivos já staged + `git add -u`) → `git reset --soft`, desstage e novo commit.
+- **O que aprendi:**
+  - Conta com Default Storage: catálogo nasce por UI/SQL; Terraform só importa.
+  - Recurso importado precisa de `terraform plan` lido linha a linha: `forces replacement` e `destroy` são o alerta. `prevent_destroy` transforma isso em erro.
+  - Referência por string não cria dependência no Terraform; `depends_on` explícito.
+  - Cada workspace Terraform tem state e lock próprios. Conferir `terraform workspace show` antes de qualquer comando.
+  - Push que mexe em `.github/workflows/` exige o escopo `workflow` no token.
+- **O que melhorar:** rodar `pytest` local antes do PR. Mover o state do Terraform para backend remoto. Decidir se o landing do prd vira `advworks.raw.landing_data` (hoje é `example.raw.landing_data`, só para não mexer no código).
+
+### Fora de PR nestes dias
+- **Pesquisa Copilot/MCP (data sem registro):** o caminho para Microsoft 365 Copilot é o Copilot Studio com o conector "Databricks" e a ferramenta MCP "Databricks Genie". Falta confirmar com o cliente: Databricks em Azure ou AWS, licença de conectores premium, e tolerância ao MCP em preview.
+- **Genie no dev:** criei "AdventureWorks - Customer Analytics" (`space_id 01f1e12ec2ec13be98f750210a3099d3`) sobre `advworks_dev.trusted.customer`. No prd, só depois que `advworks.trusted.customer` existir.
+- **Prd (feito pelo usuário):** SP criada no account console e atribuída ao workspace; secrets do GitHub atualizados; `terraform apply` no workspace `prd` (14 recursos: catálogos, schemas, volume, grants).
+- **Pendente:** abrir o PR e mergear → CD faz o deploy → rodar `customer_orchestrator` no prd → criar o Genie no prd (warehouse `672e9b06d1581692`).
+- **Pendente:** `terraform import databricks_catalog.this advworks_dev` no workspace `default` antes do próximo apply do dev.
+- **Pendente:** decidir o fim do prod antigo (`bundle destroy` num checkout com a config antiga).
