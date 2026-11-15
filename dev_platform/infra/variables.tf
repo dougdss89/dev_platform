@@ -28,3 +28,9 @@ variable "landing_volume_path" {
   type        = string
   default     = "example.raw.landing_data"
 }
+
+variable "create_landing_volume" {
+  description = "Create the managed landing volume (true only where it does not exist yet, i.e. prd)."
+  type        = bool
+  default     = false
+}

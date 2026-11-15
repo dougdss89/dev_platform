@@ -23,4 +23,5 @@ resource "databricks_grant" "landing_read" {
     volume = var.landing_volume_path
     principal  = var.sp_application_id
     privileges = ["READ_VOLUME", "WRITE_VOLUME"]
+    depends_on = [databricks_volume.landing]
   }
