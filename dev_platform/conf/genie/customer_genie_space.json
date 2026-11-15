@@ -1,0 +1,175 @@
+{
+  "version": 2,
+  "config": {
+    "sample_questions": [
+      {
+        "id": "10000000000000000000000000000001",
+        "question": [
+          "Qual o total e o ticket médio de compras (TotalPurchaseYTD) por estado?"
+        ]
+      },
+      {
+        "id": "10000000000000000000000000000002",
+        "question": [
+          "Quantos clientes existem por ocupação (Occupation) e nível de escolaridade (Education)?"
+        ]
+      },
+      {
+        "id": "10000000000000000000000000000003",
+        "question": [
+          "Quais são os 10 clientes com maior valor acumulado de compras no ano?"
+        ]
+      }
+    ]
+  },
+  "data_sources": {
+    "tables": [
+      {
+        "identifier": "advworks_dev.trusted.customer",
+        "description": [
+          "Tabela da camada Trusted contendo dados cadastrais, demográficos e acumulado de compras (YTD) de clientes da AdventureWorks, deduplicada por customerid."
+        ],
+        "column_configs": [
+          {
+            "column_name": "Education",
+            "description": [
+              "Nível de escolaridade do cliente (ex.: Bachelors, Graduate Degree, High School, Partial College)."
+            ],
+            "synonyms": [
+              "escolaridade",
+              "formacao",
+              "grau de instrucao"
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "Gender",
+            "description": [
+              "Gênero normalizado do cliente."
+            ],
+            "synonyms": [
+              "genero",
+              "sexo"
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "HomeOwnerFlag",
+            "description": [
+              "Indica se o cliente possui imóvel próprio (true/false)."
+            ],
+            "synonyms": [
+              "casa propria",
+              "proprietario"
+            ]
+          },
+          {
+            "column_name": "MaritalStatus",
+            "description": [
+              "Estado civil normalizado do cliente."
+            ],
+            "synonyms": [
+              "estado civil"
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "Occupation",
+            "description": [
+              "Categoria profissional do cliente (Professional, Management, Skilled Manual, Clerical, Manual)."
+            ],
+            "synonyms": [
+              "ocupacao",
+              "profissao",
+              "cargo"
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "TotalPurchaseYTD",
+            "description": [
+              "Valor total acumulado de compras do cliente no ano até a data (Year-To-Date)."
+            ],
+            "synonyms": [
+              "valor de compra",
+              "total comprado",
+              "faturamento cliente",
+              "compras no ano"
+            ]
+          },
+          {
+            "column_name": "city",
+            "description": [
+              "Cidade do endereço principal do cliente (normalizada em minúsculas)."
+            ],
+            "synonyms": [
+              "cidade",
+              "municipio"
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "customerid",
+            "description": [
+              "Identificador único do cliente (chave primária de merge na camada trusted)."
+            ],
+            "synonyms": [
+              "id do cliente",
+              "codigo do cliente"
+            ]
+          },
+          {
+            "column_name": "statename",
+            "description": [
+              "Nome do estado/província do cliente (normalizado em minúsculas)."
+            ],
+            "synonyms": [
+              "estado",
+              "uf",
+              "provincia"
+            ],
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          }
+        ]
+      }
+    ]
+  },
+  "instructions": {
+    "example_question_sqls": [
+      {
+        "id": "20000000000000000000000000000001",
+        "question": [
+          "Qual o total e o ticket médio de compras (TotalPurchaseYTD) por estado?"
+        ],
+        "sql": [
+          "SELECT customer.`statename`, COUNT(DISTINCT customer.`customerid`) AS total_clientes, SUM(customer.`TotalPurchaseYTD`) AS total_compras_ytd, ROUND(AVG(customer.`TotalPurchaseYTD`), 2) AS media_compras_ytd FROM advworks_dev.trusted.customer AS customer GROUP BY customer.`statename` ORDER BY total_compras_ytd DESC"
+        ]
+      },
+      {
+        "id": "20000000000000000000000000000002",
+        "question": [
+          "Quantos clientes existem por ocupação?"
+        ],
+        "sql": [
+          "SELECT customer.`Occupation`, COUNT(DISTINCT customer.`customerid`) AS total_clientes FROM advworks_dev.trusted.customer AS customer GROUP BY customer.`Occupation` ORDER BY total_clientes DESC"
+        ]
+      }
+    ],
+    "text_instructions": [
+      {
+        "id": "30000000000000000000000000000001",
+        "content": [
+          "As colunas de texto normalizadas na camada trusted (como city, statename, firstname, lastname) estão em letras minúsculas.",
+          "Ao calcular médias de compras (TotalPurchaseYTD), ignore valores nulos ou negativos, a menos que o usuário peça explicitamente para incluir estornos/ajustes."
+        ]
+      }
+    ]
+  }
+}
+
