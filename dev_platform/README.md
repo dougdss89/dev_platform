@@ -85,10 +85,14 @@ Entry points (declared in `pyproject.toml`): `customer-ingest`,
 
 ## Environments
 
-| Target | Catalog | Mode | Auth |
-|--------|---------|------|------|
-| `dev` (default) | `advworks_dev` | `development` (schedules paused) | CLI profile |
-| `prod` | `advworks` | `production` | Service principal (OAuth M2M) |
+| Target | Workspace | Catalog | Mode | Auth |
+|--------|-----------|---------|------|------|
+| `dev` (default) | original workspace | `advworks_dev` | `development` (schedules paused) | CLI profile |
+| `prod` | dedicated prd workspace and account | `advworks` | `production` | Service principal (OAuth M2M) |
+
+Prod has its own Databricks account, so it needs its own service principal
+(service principals are account-level). Its credentials live in the
+`DATABRICKS_CLIENT_ID` / `DATABRICKS_CLIENT_SECRET` repo secrets.
 
 ## Getting started
 
