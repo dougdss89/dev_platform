@@ -16,6 +16,21 @@ terraform destroy              # tears the managed resources down
 
 Auth uses the Databricks CLI profile in `var.databricks_profile` (default `doug`).
 
+### Prd workspace
+
+Prd runs in its own workspace, so point Terraform at the `prd` profile and
+enable the managed landing volume (prd only):
+
+```bash
+terraform plan -var databricks_profile=prd \
+  -var create_landing_volume=true \
+  -var sp_application_id=<prd service principal application id>
+```
+
+The prd catalogs were created outside Terraform (Default Storage) and imported;
+`ignore_changes` on `storage_root` and `prevent_destroy` keep them from being
+replaced. Use a separate state per workspace (`terraform.tfstate.d/`).
+
 ## Roadmap for this dir
 
 1. Replace the demo schema with the real `raw` / `trusted` / `enriched` schemas,
