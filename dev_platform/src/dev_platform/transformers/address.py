@@ -18,7 +18,7 @@ STREET_ABBREVIATIONS = {
     r"(?i)\bln\b": "Lane",
     r"(?i)\brd\b": "Road",
     r"(?i)\bdr\b": "Drive",
-    r"(?i)\bct\b": "Court",    
+    r"(?i)\bct\b": "Court",
     r"(?i)\bst\b": "Street",
     r"(?i)\bblvd\b": "Boulevard",
     r"(?i)\bave\b": "Avenue",
@@ -57,5 +57,3 @@ class StandardizeAddressTransformer(BaseTransformer):
                 trim(regexp_replace(regexp_replace(self._column, r"\d+", ""), r"[^a-zA-Z ]", "")),
             )
         )
-
-    

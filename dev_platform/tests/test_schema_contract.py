@@ -15,28 +15,39 @@ from dev_platform.domains.customer.pipeline import RAW_METADATA_COLUMNS, build_c
 
 
 def test_trusted_schema_contract(spark: SparkSession):
-    base_fields = (
-        [
-            StructField("customerid", LongType()),
-            StructField("emailaddress", StringType()),
-            StructField("city", StringType()),
-            StructField("statename", StringType()),
-            StructField("firstname", StringType()),
-            StructField("lastname", StringType()),
-            StructField("phonenumber", StringType()),
-            StructField("HomeOwnerFlag", StringType()),
-            StructField("YearlyIncome", StringType()),
-            StructField("BirthDate", DateType()),
-            StructField("MaritalStatus", StringType()),
-            StructField("Gender", StringType()),
-        ]
-    )
+    base_fields = [
+        StructField("customerid", LongType()),
+        StructField("emailaddress", StringType()),
+        StructField("city", StringType()),
+        StructField("statename", StringType()),
+        StructField("firstname", StringType()),
+        StructField("lastname", StringType()),
+        StructField("phonenumber", StringType()),
+        StructField("HomeOwnerFlag", StringType()),
+        StructField("YearlyIncome", StringType()),
+        StructField("BirthDate", DateType()),
+        StructField("MaritalStatus", StringType()),
+        StructField("Gender", StringType()),
+    ]
     # Some metadata columns (e.g. YearlyIncome) are also real source columns above:
     # adding them twice would make every reference to them ambiguous.
     declared = {f.name for f in base_fields}
     extra_metadata = [c for c in RAW_METADATA_COLUMNS if c not in declared]
     schema = StructType(base_fields + [StructField(c, StringType()) for c in extra_metadata])
-    row = (1, "a@b.com", "NY", "NY", "john", "doe", "230-555-0191", "true", "50001-75000", dt.date(1990, 1, 1), "M", "M") + tuple("x" for _ in extra_metadata)
+    row = (
+        1,
+        "a@b.com",
+        "NY",
+        "NY",
+        "john",
+        "doe",
+        "230-555-0191",
+        "true",
+        "50001-75000",
+        dt.date(1990, 1, 1),
+        "M",
+        "M",
+    ) + tuple("x" for _ in extra_metadata)
     df = spark.createDataFrame([row], schema)
 
     # reader/writer are not exercised; only the factory's transformer list is tested.
