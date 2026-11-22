@@ -1,0 +1,30 @@
+# Orchestrator — ORDERS the layers (inter-layer) via run_job_task.
+# Runs no code of its own: each task simply triggers a layer job and waits.
+# The raw -> trusted -> (enriched) order is defined by `depends_on` between tasks.
+#   run raw-ingestion
+#        │
+#        ▼
+#   run trusted-build
+#
+# At the orchestration level, this is the analog of the transformer list inside
+# a factory: here we sequence entire jobs rather than individual transformations.
+resources:
+  jobs:
+    salesperson_orchestrator:
+      name: SALESPERSON_ORCHESTRATOR
+      tasks:
+        - task_key: SEED
+          run_job_task:
+            job_id: ${resources.jobs.salesperson_seed.id}
+
+        - task_key: RAW_SALESPERSON_INGESTION
+          depends_on:
+            - task_key: SEED
+          run_job_task:
+            job_id: ${resources.jobs.raw_salesperson_ingestion.id}
+            
+        - task_key: TRUSTED
+          depends_on:
+            - task_key: RAW_SALESPERSON_INGESTION
+          run_job_task:
+            job_id: ${resources.jobs.trusted_salesperson_ingestion.id}

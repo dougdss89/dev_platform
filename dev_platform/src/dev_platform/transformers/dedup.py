@@ -39,8 +39,4 @@ class DeduplicateTransformer(BaseTransformer):
 
         direction = F.desc_nulls_last if self._descending else F.asc_nulls_last
         window = Window.partitionBy(*self._keys).orderBy(*[direction(c) for c in self._order_by])
-        return (
-            df.withColumn("__rn__", F.row_number().over(window))
-            .filter(F.col("__rn__") == 1)
-            .drop("__rn__")
-        )
+        return df.withColumn("__rn__", F.row_number().over(window)).filter(F.col("__rn__") == 1).drop("__rn__")

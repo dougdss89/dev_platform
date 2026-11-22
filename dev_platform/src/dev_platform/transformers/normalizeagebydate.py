@@ -15,13 +15,11 @@ class DeriveAgeByDate(BaseTransformer):
         suffix: str = "_age",
         validator: ColumnValidator = ColumnValidator((DateType,)),
     ):
-
         self._columns = columns
         self._suffix = suffix
         self._validator = validator
 
     def transform(self, df: DataFrame) -> DataFrame:
-
         valid_columns = self._validator.validate(df, self._columns)
 
         if not valid_columns:
