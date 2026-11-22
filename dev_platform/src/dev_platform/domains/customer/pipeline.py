@@ -43,7 +43,7 @@ RAW_METADATA_COLUMNS = [
     "extracted_date",
     "__metadata__",
     "YearlyIncome",
-    "addressline1",    
+    "addressline1",
 ]
 
 

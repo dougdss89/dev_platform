@@ -1,5 +1,5 @@
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import col, trim, upper
+from pyspark.sql.functions import col, trim, lower
 from pyspark.sql.types import DataType
 
 from dev_platform.core.common.transformer import BaseTransformer
@@ -18,12 +18,12 @@ class CastTypesTransformer(BaseTransformer):
 
 
 class CleanStringsTransformer(BaseTransformer):
-    """Trims whitespace and normalizes values to uppercase in the specified columns."""
+    """Trims whitespace and normalizes values to lowercase in the specified columns."""
 
     def __init__(self, columns: list[str]):
         self.columns = columns
 
     def transform(self, df: DataFrame) -> DataFrame:
         for column_name in self.columns:
-            df = df.withColumn(column_name, upper(trim(col(column_name))))
+            df = df.withColumn(column_name, lower(trim(col(column_name))))
         return df

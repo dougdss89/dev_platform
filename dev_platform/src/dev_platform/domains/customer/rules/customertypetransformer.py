@@ -10,12 +10,10 @@ class DeriveCustomerType(BaseTransformer):
     """Trasnform values in customertype according to their abbreviations"""
 
     def __init__(self, columns: list[str], validator: ColumnValidator = ColumnValidator(StringType)):
-
         self._columns = columns
         self._validator = validator
 
     def transform(self, df: DataFrame) -> DataFrame:
-
         valid_columns = self._validator.validate(df, self._columns)
 
         if not valid_columns:

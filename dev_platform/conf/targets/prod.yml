@@ -6,6 +6,9 @@ targets:
   prod:
     mode: production
 
+    presets:
+      name_prefix: "PRD_"
+
     workspace:
       host: https://dbc-ea2c3f22-c40e.cloud.databricks.com
       # No 'profile' here: prod is deployed via service principal (OAuth M2M env

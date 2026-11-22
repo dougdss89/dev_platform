@@ -31,10 +31,14 @@ test = [
 
 [project.scripts]
 # Each entry point becomes the target of a python_wheel_task in the bundle job.
-customer-ingest = "dev_platform.entrypoints.customer_ingest:main"
-customer-trusted = "dev_platform.entrypoints.customer_trusted:main"
+customer-ingest = "dev_platform.entrypoints.customer.customer_ingest:main"
+customer-trusted = "dev_platform.entrypoints.customer.customer_trusted:main"
 apply-tags = "dev_platform.entrypoints.apply_tags:main"
-seed-customer = "dev_platform.entrypoints.seed_customer:main"
+seed-customer = "dev_platform.entrypoints.customer.seed_customer:main"
+seed-salesperson = "dev_platform.entrypoints.humanresources.seed_salesperson:main"
+hr-salesperson-ingest = "dev_platform.entrypoints.humanresources.hr_salesperson_ingest:main"
+hr-salesperson-trusted = "dev_platform.entrypoints.humanresources.hr_salesperson_trusted:main"
+
 
 [build-system]
 requires = ["hatchling"]

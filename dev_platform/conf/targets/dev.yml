@@ -1,10 +1,10 @@
 # Environment: DEV
-# Local development copy. Deployed resources are prefixed with '[dev <user>]'
-# and schedules/triggers are paused (mode: development).
+# Local development copy. Deployed jobs are prefixed with 'DEV_' and schedules/triggers are paused.
+# No 'mode: development': that mode requires the username in name_prefix (uniqueness check), which
+# conflicts with the plain 'DEV_' naming. Its useful behavior is set explicitly via presets instead.
 # https://docs.databricks.com/dev-tools/bundles/deployment-modes.html
 targets:
   dev:
-    mode: development
     default: true
 
     workspace:
@@ -12,6 +12,10 @@ targets:
       # 'profile' is fine for local/dev (uses your ~/.databrickscfg). It must NOT
       # appear on prod, which authenticates via service-principal env vars in CI.
       profile: community
+
+    presets:
+      name_prefix: "DEV_"
+      trigger_pause_status: PAUSED
 
     variables:
       # Only the catalog changes per environment; schemas fall back to the

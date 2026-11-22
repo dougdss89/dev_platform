@@ -1,0 +1,35 @@
+# SEED job — sporadically writes small synthetic salesperson batches to the landing
+# volume. Each run draws against load_probability: it may append 1..max_batch_size
+# rows or write nothing at all (the run still succeeds).
+#
+# Schedule ships PAUSED in both dev and prod — trigger the job manually while
+# training. Flip pause_status to UNPAUSED when you want the hourly cadence.
+# Cost: serverless STANDARD, tiny batch; keep it paused when not training.
+resources:
+  jobs:
+    salesperson_seed:
+      name: SALESPERSON_SEED
+      tasks:
+        - task_key: seed
+          python_wheel_task:
+            package_name: dev_platform
+            entry_point: seed-salesperson
+            parameters:
+              - example   # landing catalog (shared by dev and prod ingestion)
+              - "3"       # max batch size (a load has 1..3 rows)
+              - "0.5"     # load probability per run
+          environment_key: default
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "2"
+            dependencies:
+              - ../../../dist/*.whl
+
+      schedule:
+        quartz_cron_expression: "0 0 * * * ?"   # every hour
+        timezone_id: UTC
+        pause_status: PAUSED   # training: trigger manually; flip to UNPAUSED only when you want the cadence
+
+      performance_target: STANDARD

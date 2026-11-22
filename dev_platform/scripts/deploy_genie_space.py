@@ -46,9 +46,7 @@ def _run_databricks_cli(args: list[str], profile: str | None = None) -> str:
         cmd.extend(["--profile", profile])
     result = subprocess.run(cmd, capture_output=True, text=True, check=False)
     if result.returncode != 0:
-        raise RuntimeError(
-            f"Erro ao executar {' '.join(cmd)} (exit {result.returncode}):\n{result.stderr.strip()}"
-        )
+        raise RuntimeError(f"Erro ao executar {' '.join(cmd)} (exit {result.returncode}):\n{result.stderr.strip()}")
     return result.stdout
 
 
@@ -179,4 +177,3 @@ if __name__ == "__main__":
     except Exception as exc:
         print(f"[ERRO] {exc}", file=sys.stderr)
         sys.exit(1)
-

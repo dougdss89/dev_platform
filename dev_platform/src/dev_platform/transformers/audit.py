@@ -11,6 +11,4 @@ class AuditTransformer(BaseTransformer):
         self._layer = layer
 
     def transform(self, df: DataFrame) -> DataFrame:
-        return df.withColumns(
-            {"_ingested_at": current_timestamp(), "_source_layer": lit(self._layer)}
-        )
+        return df.withColumns({"_ingested_at": current_timestamp(), "_source_layer": lit(self._layer)})
