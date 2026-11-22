@@ -6,7 +6,7 @@
 resources:
   jobs:
     raw_customer_ingestion:
-      name: raw_customer_ingestion
+      name: RAW_CUSTOMER_INGESTION
       tasks:
         - task_key: customer
           python_wheel_task:
