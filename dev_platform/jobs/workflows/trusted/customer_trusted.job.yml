@@ -5,7 +5,7 @@
 resources:
   jobs:
     trusted_customer_ingestion:
-      name: trusted_customer_ingestion
+      name: TRUSTED_CUSTOMER_INGESTION
       tasks:
         - task_key: customer
           python_wheel_task:

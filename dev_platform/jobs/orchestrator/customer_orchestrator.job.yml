@@ -11,20 +11,20 @@
 resources:
   jobs:
     customer_orchestrator:
-      name: customer_orchestrator
+      name: CUSTOMER_ORCHESTRATOR
       tasks:
-        - task_key: seed
+        - task_key: SEED
           run_job_task:
             job_id: ${resources.jobs.customer_seed.id}
 
-        - task_key: raw_customer_ingestion
+        - task_key: RAW_CUSTOMER_INGESTION
           depends_on:
-            - task_key: seed
+            - task_key: SEED
           run_job_task:
             job_id: ${resources.jobs.raw_customer_ingestion.id}
             
-        - task_key: trusted
+        - task_key: TRUSTED
           depends_on:
-            - task_key: raw_customer_ingestion
+            - task_key: RAW_CUSTOMER_INGESTION
           run_job_task:
             job_id: ${resources.jobs.trusted_customer_ingestion.id}
