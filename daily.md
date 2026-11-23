@@ -11,6 +11,7 @@ Uma seção por dia, e dentro dela uma subseção por PR (PRs parecidos viram um
 - [2026-11-07: bind, dedup, options, regras de domínio e permissões](#2026-11-07--bind-dedup-options-regras-de-domínio-e-permissões)
 - [2026-11-10: orquestrador e ajustes de endereço](#2026-11-10--orquestrador-e-ajustes-de-endereço)
 - [2026-11-14 e 2026-11-15: novo workspace de prd](#2026-11-14-e-2026-11-15--novo-workspace-de-prd)
+- [2026-11-16 a 2026-11-22: prd no ar, histórico limpo e domínio HR](#2026-11-16-a-2026-11-22--prd-no-ar-histórico-limpo-e-domínio-hr)
 
 ## Como consolidar no fim do dia
 
@@ -201,7 +202,7 @@ Só tenho o que os commits dizem; o que não foi registrado na hora fica como "s
 
 Prd passou a ser uma conta e um workspace próprios (`dbc-ea2c3f22-c40e`, id 7474653833427612). Dev continua no workspace antigo.
 
-### PR (número a definir) — branch `chore/new-prd-workspace`
+### PR #46 — branch `chore/new-prd-workspace`
 - **O que mudou:**
   - Alvo `prod`, `ci.yml` e `cd.yml` apontam para o workspace novo. `root_path` fica na pasta da SP (sem e-mail pessoal).
   - SP nova `sp_databricks_bundle_prd` (`43bd6c8a-…`) no `variables.yml`. No Terraform o padrão continua sendo a SP do dev; o prd recebe `-var sp_application_id`.
@@ -229,10 +230,72 @@ Prd passou a ser uma conta e um workspace próprios (`dbc-ea2c3f22-c40e`, id 747
   - Push que mexe em `.github/workflows/` exige o escopo `workflow` no token.
 - **O que melhorar:** rodar `pytest` local antes do PR. Mover o state do Terraform para backend remoto. Decidir se o landing do prd vira `advworks.raw.landing_data` (hoje é `example.raw.landing_data`, só para não mexer no código).
 
+### PR #49 — docs do prd
+- **O que mudou:** documentação do workspace dedicado de prd e de como usar o Terraform nele (um workspace Terraform por ambiente).
+
 ### Fora de PR nestes dias
 - **Pesquisa Copilot/MCP (data sem registro):** o caminho para Microsoft 365 Copilot é o Copilot Studio com o conector "Databricks" e a ferramenta MCP "Databricks Genie". Falta confirmar com o cliente: Databricks em Azure ou AWS, licença de conectores premium, e tolerância ao MCP em preview.
 - **Genie no dev:** criei "AdventureWorks - Customer Analytics" (`space_id 01f1e12ec2ec13be98f750210a3099d3`) sobre `advworks_dev.trusted.customer`. No prd, só depois que `advworks.trusted.customer` existir.
 - **Prd (feito pelo usuário):** SP criada no account console e atribuída ao workspace; secrets do GitHub atualizados; `terraform apply` no workspace `prd` (14 recursos: catálogos, schemas, volume, grants).
-- **Pendente:** abrir o PR e mergear → CD faz o deploy → rodar `customer_orchestrator` no prd → criar o Genie no prd (warehouse `672e9b06d1581692`).
+- **Feito depois (ver 2026-11-16 a 2026-11-22):** #46 mergeado, CD fez o deploy, `customer_orchestrator` rodou no prd e o Genie do prd foi criado (warehouse `672e9b06d1581692`).
 - **Pendente:** `terraform import databricks_catalog.this advworks_dev` no workspace `default` antes do próximo apply do dev.
 - **Pendente:** decidir o fim do prod antigo (`bundle destroy` num checkout com a config antiga).
+
+
+## 2026-11-16 a 2026-11-22 — prd no ar, histórico limpo e domínio HR
+
+Só tenho o que os commits e a sessão registraram. Os itens de 16 a 21 não têm data exata e ficam como "sem registro". Os PRs #50 e #51 foram mergeados em 2026-11-22 e o CD de prd rodou com sucesso nos dois.
+
+### PR #50 — prefixo `DEV_`/`PRD_` nos jobs
+- **O que mudou:**
+  - Nomes dos 5 jobs em maiúsculas (`CUSTOMER_SEED`, `RAW_CUSTOMER_INGESTION`, `TRUSTED_CUSTOMER_INGESTION`, `CUSTOMER_ORCHESTRATOR`, `TESTE_JOB`) e `task_key` do orquestrador também.
+  - Cada target prefixa o nome com `presets.name_prefix`: `DEV_` no dev, `PRD_` no prd.
+  - O dev perdeu `mode: development` e ganhou `presets.trigger_pause_status: PAUSED`.
+  - Chaves dos recursos e `${resources.jobs.<chave>.id}` ficaram iguais: o job é renomeado no lugar, não recriado.
+- **Motivo:** distinguir dev e prd na UI com o mesmo bundle.
+- **Erros e correções:**
+  - `bundle validate -o json 2>/dev/null` escondeu um erro real e o dev parecia válido → o validate rodado direto no terminal mostrou `prefix should contain the current username or ${workspace.current_user.short_name}`. Em `mode: development` o prefixo precisa do usuário, o que conflita com um `DEV_` puro → saí do modo development e fixei a pausa dos schedules.
+- **O que aprendi:**
+  - Validar sempre com `--strict` e com o stderr visível.
+  - O `name_prefix` é concatenado direto (`DEV_` + `CUSTOMER_SEED`).
+  - Sem `mode: development` o dev perde o isolamento por usuário e o lock de deploy volta. Hoje só eu uso o workspace.
+- **O que melhorar:** os READMEs ainda não citam o padrão `DEV_`/`PRD_`.
+
+### PR #51 — domínio HR: salesperson (pipelines, regras de gerente e seed)
+- **O que mudou:**
+  - Domínio `humanresources`: `landing → raw` e `raw → trusted` do salesperson, entrypoints, jobs e `salesperson_orchestrator`.
+  - Regras de gerente que preenchem o que a fonte deixa vazio: território, país, região, comissão, quota (maior quota da região + acréscimo) e bônus (maior bônus da região × multiplicador). O mapa título → valor é argumento do construtor, não id fixo.
+  - Seed esporádico: cada execução sorteia se carrega (padrão 50%) e, se carregar, grava de 1 a 3 linhas. Uma execução sem carga termina com sucesso. O schema é fixado por teste contra o parquet real.
+  - `ExtractPrefixLogin` mantém o usuário depois do domínio (`adventure-works\pamela0` → `pamela0`).
+  - `CleanStringsTransformer` passou de maiúsculas para minúsculas.
+  - Entrypoints do customer movidos para `entrypoints/customer/` e `pyproject.toml` ajustado (3 do customer e 3 novos).
+  - Commit à parte só de formatação (`ruff format`).
+- **Motivo:** segundo domínio no mesmo molde do customer, com regras de negócio que dependem de dado real (gerentes chegam sem território, quota, bônus e comissão).
+- **Erros e correções:**
+  - `like(f"{prefix}%)")` com um `)` dentro da string → nenhuma linha casava e nada falhava → removi o `)`.
+  - `CleanStrings` em maiúsculas deixava o `jobtitle` em `NORTH AMERICAN…` e o `like` é case-sensitive → mudei para minúsculas e as chaves dos mapas também.
+  - Região por `groupname`: o valor real era só `Sales and Marketing` (grupo do departamento) → usei `continentname`.
+  - Comissão e bônus dos gerentes são `0`, não `null`, então `coalesce` nunca preenchia → condição "nulo ou zero".
+  - `"coutrycode"` na lista do `CleanStrings` → `AnalysisException`; a classe não valida colunas → `countryregioncode`.
+  - `self._tion_column` (typo), `return df` ausente e `_continent_column` inexistente nas classes novas.
+  - `FilterInvalidTransformer(["businessentityid"])` → a classe espera expressão `Column`, não nome → `col("businessentityid").isNotNull()`.
+  - `pyproject.toml` apontando para módulos que eu tinha movido → `ModuleNotFoundError` ao resolver os entry points; faltavam `hr-salesperson-ingest` e `hr-salesperson-trusted`.
+- **O que aprendi:**
+  - Olhar `printSchema()` e os valores reais antes de assumir coluna.
+  - Regra que depende de outra tem ordem: território antes de país.
+  - Testar a regra num DataFrame pequeno e o pipeline inteiro com leitor e escritor falsos pega esse tipo de erro em segundos. Ficaram 37 testes passando.
+  - Um mapa passado por argumento troca "mudar a classe" por "mudar a chamada".
+- **O que melhorar:** o `CleanStrings` em minúsculas também muda `city`, `statename`, `firstname` e `lastname` do customer; as linhas antigas só se uniformizam quando o trusted do customer rodar de novo. O landing do salesperson do prd ainda é `example.raw.landing_data`.
+
+### Fora de PR (de 16 a 21, sem data)
+- **Prd verificado:** `Genie Space` do prd criado e respondendo (`space_id 01f1e137bebf129e86609ca006c46676`), `SELECT` concedido ao dono do prd (`saldanha.s.douglas`), secrets do GitHub rotacionados e CI/CD verde. O estado local do bundle do prod antigo ficou isolado em `.databricks/bundle/prod.old-account` depois do erro de lineage ao trocar de conta.
+- **Co-autor removido do histórico:** `git filter-branch --msg-filter` numa lista explícita de branches, sem `--all`, para não mexer no backup. Push com `--force-with-lease` por branch; 3 branches foram atualizadas e 6 recusaram com `stale info` porque já tinham sido apagadas no GitHub após o merge. Resultado: `dougdss89` com 66 commits e 0 `Co-Authored-By` na `main`. Aprendi que o gráfico de contribuidores olha só a branch padrão e que `refs/pull/*` guarda os commits antigos.
+
+### Fora de PR (2026-11-22)
+- **Git folders com "unrelated histories":** depois da reescrita, os dois Git folders `dev_platform` (dev e prd) mostravam `Refusing to merge unrelated histories`, com Pull 75 e Push 66 no prd. Antes de agir comparei o conteúdo: o head de cada pasta (`362ba07` e `7d34151`) tinha o mesmo `tree` que um commit do histórico novo (`11f2aa4` e `19477e1`), então só mudaram os hashes. Correção: `git fetch origin && git reset --hard origin/main` no Web Terminal de cada pasta. Não clicar em Push (66): reenviaria o histórico antigo com os co-autores. O `repos list` pelo CLI não mostra essas pastas.
+- **ssh-agent no shell do Claude Code:** `SSH_AUTH_SOCK` fixo em `~/.ssh/agent.sock` e a chave `gitssh` carregada. A variável também foi para o bloco `env` do `~/.claude/settings.json`; o bloco colado fora do objeto deixou o arquivo com JSON inválido e foi corrigido. Sessão ou VS Code precisam reiniciar para herdar o ambiente.
+- **Branches mergeadas apagadas** (remoto e local): `feat/job-name-prefix`, `feat/hr-salesperson` e `chore/new-prd-workspace`, mais `docs/prd-environment` só no local. Ficaram `main` e `advworks_dev`.
+- **Orquestrador do salesperson:** rodou em dev com SUCCESS (cerca de 4 min). No prd, rodado por mim depois do deploy; resultado sem registro.
+- **Pendente:** decidir o landing do prd (`advworks.raw.landing_data` em vez de `example.raw.landing_data`).
+- **Pendente:** `terraform import databricks_catalog.this advworks_dev` no workspace `default` antes do próximo apply do dev; backend remoto do state.
+- **Pendente:** decidir o fim do prod antigo e limpar `.databricks/bundle/prod.old-account`; alinhar o CLI (aviso de versão 1.26.0 do bundle contra 1.23.0 local).
