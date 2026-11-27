@@ -36,8 +36,12 @@ customer-trusted = "dev_platform.entrypoints.customer.customer_trusted:main"
 apply-tags = "dev_platform.entrypoints.apply_tags:main"
 seed-customer = "dev_platform.entrypoints.customer.seed_customer:main"
 seed-salesperson = "dev_platform.entrypoints.humanresources.seed_salesperson:main"
+seed-buyer = "dev_platform.entrypoints.buyer.seed_buyer:main"
 hr-salesperson-ingest = "dev_platform.entrypoints.humanresources.hr_salesperson_ingest:main"
 hr-salesperson-trusted = "dev_platform.entrypoints.humanresources.hr_salesperson_trusted:main"
+buyer-ingest = "dev_platform.entrypoints.buyer.buyer_ingest:main"
+buyer-trusted = "dev_platform.entrypoints.buyer.buyer_trusted:main"
+
 
 
 [build-system]
