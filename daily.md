@@ -12,6 +12,7 @@ Uma seção por dia, e dentro dela uma subseção por PR (PRs parecidos viram um
 - [2026-11-10: orquestrador e ajustes de endereço](#2026-11-10--orquestrador-e-ajustes-de-endereço)
 - [2026-11-14 e 2026-11-15: novo workspace de prd](#2026-11-14-e-2026-11-15--novo-workspace-de-prd)
 - [2026-11-16 a 2026-11-22: prd no ar, histórico limpo e domínio HR](#2026-11-16-a-2026-11-22--prd-no-ar-histórico-limpo-e-domínio-hr)
+- [2026-11-27: domínio buyer](#2026-11-27--domínio-buyer)
 
 ## Como consolidar no fim do dia
 
@@ -299,3 +300,34 @@ Só tenho o que os commits e a sessão registraram. Os itens de 16 a 21 não tê
 - **Pendente:** decidir o landing do prd (`advworks.raw.landing_data` em vez de `example.raw.landing_data`).
 - **Pendente:** `terraform import databricks_catalog.this advworks_dev` no workspace `default` antes do próximo apply do dev; backend remoto do state.
 - **Pendente:** decidir o fim do prod antigo e limpar `.databricks/bundle/prod.old-account`; alinhar o CLI (aviso de versão 1.26.0 do bundle contra 1.23.0 local).
+
+
+## 2026-11-27 — domínio buyer
+
+Só tenho o que os commits e a sessão registraram. O PR do buyer ainda não foi aberto e o deploy em dev ainda não foi rodado por mim, então não há número de PR nem resultado de execução aqui.
+
+### PR da `feat/buyer` (a abrir) — domínio buyer: seed, raw e trusted
+- **O que mudou:**
+  - Domínio `buyer` (compras): `landing → raw` e `raw → trusted`, entrypoints `buyer-ingest` e `buyer-trusted`, jobs `RAW_BUYER_INGESTION` e `TRUSTED_BUYER_INGESTION` e o `BUYER_ORCHESTRATOR` (seed → raw → trusted).
+  - Seed esporádico no mesmo molde do salesperson (`seed-buyer`, job `BUYER_SEED`, `PAUSED`): cada execução sorteia se carrega (padrão 50%) e grava de 1 a 3 linhas, com ids a partir de `4_000_000`. O schema (22 colunas) foi lido do parquet real em `example.raw.landing_data/buyer` e fixado por teste.
+  - O trusted começa com `DeduplicateTransformer` por `businessentityid` (ordem `inserted_date`, `startdate`, `ratechangedate`) e termina com `DropColumnsTransformer` nas colunas de metadados do raw.
+  - Na mesma branch: o raw do salesperson passou a usar os decoradores `Logging*`, como o trusted; `.vscode` no `.gitignore`; `fixtures/.gitkeep` removido.
+  - 12 testes novos (6 do seed e 6 do pipeline). Suíte inteira: 49 passando.
+- **Motivo:** terceiro domínio no mesmo molde do customer e do salesperson, com um dado real que quebra o MERGE se não for tratado: o landing repete cada funcionário por departamento e por faixa de salário (20 linhas para 12 funcionários; o id 250 aparece 9 vezes).
+- **Erros e correções:**
+  - `Pipeline(nome=...)` e `transformer=[...]` → a classe espera `name` e `transformers` → `TypeError` ao montar os dois pipelines. Corrigido.
+  - Sem deduplicação, a primeira execução cria a tabela com duplicatas e a segunda falharia no MERGE com `DELTA_MULTIPLE_SOURCE_ROW_MATCHING_TARGET_ROW_IN_MERGE`. Ordenar por `enddate` com `desc_nulls_last` jogaria a linha atual (`enddate` nulo) para o fim; por isso a ordem usa `startdate` e `ratechangedate`.
+  - Orquestrador do buyer com a chave `customer_orchestrator` → `multiple resources or scripts have been defined with the same key` no `bundle validate` → chave `buyer_orchestrator`.
+  - Jobs apontavam `hr-buyer-ingest` e `hr-buyer-trusted`, que não existem no `pyproject.toml`, e o `bundle validate` passou mesmo assim → entry points `buyer-ingest` e `buyer-trusted` criados e os jobs ajustados.
+  - O teste do schema do seed falhou sozinho: `StructType.fromDDL` precisa de uma SparkSession ativa e o teste não pedia a fixture `spark` → passou a receber `spark`.
+- **O que aprendi:**
+  - `bundle validate` não confere entry points de `python_wheel_task`; só o deploy e a execução mostram.
+  - Ler o `printSchema()` e os valores do landing real antes de escrever o seed evitou um schema inventado (por exemplo `departmentid` é `short` e os flags são `boolean`).
+  - Um MERGE exige chave única na origem; quando o raw é append-only e relê o landing inteiro, a deduplicação do trusted é obrigatória.
+- **O que melhorar:** o raw é append e relê o landing inteiro a cada execução, então ele cresce com linhas repetidas; o trusted absorve isso, mas o raw não.
+
+### Fora de PR (2026-11-27)
+- **Branch separada do daily:** a `feat/buyer` tinha saído da `advworks_dev` e levaria 301 linhas do `daily.md` para a `main`. Refiz a branch com `git rebase --onto origin/main 613beff feat/buyer`: ficou um commit só do buyer em cima da `origin/main`. Backup local em `backup/feat-buyer-before-split`. O remoto ainda tem o commit antigo e precisa de `git push --force-with-lease origin feat/buyer`.
+- **Ruff e argumentos em coluna:** não existe opção para quebrar a partir de N argumentos. O que força um por linha é a vírgula depois do último argumento (magic trailing comma). Testado com o ruff 0.13.0 e `line-length = 120`. O formato com `LoggingReader(VolumeParquetReader.for_landing(` colado não é gerado: cada nível de chamada ganha a sua linha.
+- **Pendente:** abrir o PR da `feat/buyer`, rodar `BUYER_ORCHESTRATOR` em dev e conferir a contagem do `trusted.buyer` (12 linhas ou mais, conforme o seed sortear).
+- **Pendente:** mesmos itens abertos de 2026-11-22 (landing do prd, `terraform import`, prod antigo, versão do CLI).
