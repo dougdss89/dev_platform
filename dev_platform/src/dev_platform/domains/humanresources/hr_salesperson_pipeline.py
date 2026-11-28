@@ -22,7 +22,7 @@ from dev_platform.transformers.audit import AuditTransformer
 from dev_platform.transformers.cleaning import CastTypesTransformer, CleanStringsTransformer
 from dev_platform.transformers.extractlogin import ExtractPrefixLogin
 from dev_platform.transformers.filters import FilterInvalidTransformer
-from dev_platform.transformers.metadata import MetadataTransformer
+from dev_platform.transformers.metadata import DropColumnsTransformer, MetadataTransformer
 from dev_platform.core.common.transformer import LoggingTransformer
 from dev_platform.transformers.normalizeagebydate import DeriveAgeByDate
 from dev_platform.transformers.normalizegender import NormalizeGender
@@ -42,7 +42,11 @@ RAW_METADATA_COLUMNS = [
 ]
 
 
-def build_hr_salesperson_raw_ingestion(spark: SparkSession, catalog: str, landing_catalog: str = "example") -> Pipeline:
+def build_hr_salesperson_raw_ingestion(spark: SparkSession, 
+                                       catalog: str, 
+                                       landing_catalog: str = "example"
+                                ) -> Pipeline:
+    
     """Pipeline landing -> raw: persists data as-is + ingestion_metadata.
     No business rules here.
     Landing catalog is the catalog that handle volume data which is loaded
@@ -51,12 +55,24 @@ def build_hr_salesperson_raw_ingestion(spark: SparkSession, catalog: str, landin
 
     return Pipeline(
         name="hr_salesperson_landing_to_raw",
-        reader=VolumeParquetReader.for_landing(
-            spark, catalog=landing_catalog, dataset="salesperson", options={"mergeSchema": "true"}
-        ),
-        transformers=[MetadataTransformer(dataset="salesperson"), AuditTransformer(layer="raw")],
-        writer=TableWriter(spark, table=f"{catalog}.raw.salesperson", mode="append", options={"mergeSchema": "true"}),
-    )
+        
+        reader=LoggingReader(VolumeParquetReader.for_landing(
+            spark, 
+            catalog=landing_catalog,
+            dataset="salesperson", 
+            options={"mergeSchema": "true"},
+        )),
+        
+        transformers=[LoggingTransformer(MetadataTransformer(dataset="salesperson")), 
+                      LoggingTransformer(AuditTransformer(layer="raw"))],
+        
+        writer=LoggingWriter(TableWriter(spark, 
+                                         table=f"{catalog}.raw.salesperson", 
+                                         mode="append", 
+                                         options={"mergeSchema": "true"},
+                                        )
+                            ),
+        )
 
 
 def build_hr_salesperson_trusted(spark: SparkSession, catalog: str) -> Pipeline:
@@ -69,7 +85,9 @@ def build_hr_salesperson_trusted(spark: SparkSession, catalog: str) -> Pipeline:
                                                 table=f"{catalog}.trusted.salesperson",
                                                 merge_key="businessentityid",
                                                 schema_evolution=True,
-                                                cluster_by=["continentname", "countryregioncode"])),
+                                                cluster_by=["continentname", "countryregioncode"]),
+        ),
+        
         transformers=[
             LoggingTransformer(
                 CastTypesTransformer(schema_map={"salariedflag": BooleanType(), 
@@ -95,6 +113,7 @@ def build_hr_salesperson_trusted(spark: SparkSession, catalog: str) -> Pipeline:
             
             LoggingTransformer(FilterInvalidTransformer(rules=[F.col("businessentityid").isNotNull()])),
             LoggingTransformer(ExtractPrefixLogin(["loginid"])),
+            LoggingTransformer(DropColumnsTransformer(columns=RAW_METADATA_COLUMNS)),
             LoggingTransformer(NormalizeGender(["gender"])),
             LoggingTransformer(DeriveAgeByDate(["birthdate", "hiredate"])),
             LoggingTransformer(NormalizeMaritalStatus(["maritalstatus"])),
