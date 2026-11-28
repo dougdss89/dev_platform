@@ -1,0 +1,24 @@
+# GOVERNANCE job — applies table tags, descriptions and column tags to the tables that exist.
+# Idempotent and cheap: run it by hand after the layer jobs, or whenever conf/data_tags.yml
+# or conf/data_catalog/ change. No schedule on purpose.
+# Serverless compute; the bundle wheel is included as a dependency.
+resources:
+  jobs:
+    apply_metadata:
+      name: APPLY_METADATA
+      tasks:
+        - task_key: apply_metadata
+          python_wheel_task:
+            package_name: dev_platform
+            entry_point: apply-metadata
+            parameters:
+              - ${var.catalog}
+              - "raw,trusted"   # schemas to describe
+          environment_key: default
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "2"
+            dependencies:
+              - ../../../dist/*.whl

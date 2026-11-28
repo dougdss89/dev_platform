@@ -5,6 +5,9 @@
 #        │
 #        ▼
 #   run trusted-build
+#        │
+#        ▼
+#   apply-metadata (descriptions and tags)
 #
 # At the orchestration level, this is the analog of the transformer list inside
 # a factory: here we sequence entire jobs rather than individual transformations.
@@ -28,3 +31,9 @@ resources:
             - task_key: RAW_SALESPERSON_INGESTION
           run_job_task:
             job_id: ${resources.jobs.trusted_salesperson_ingestion.id}
+
+        - task_key: APPLY_METADATA
+          depends_on:
+            - task_key: TRUSTED
+          run_job_task:
+            job_id: ${resources.jobs.apply_metadata.id}

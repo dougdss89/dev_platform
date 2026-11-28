@@ -1,0 +1,57 @@
+# Buyer = Purchasing department employees (Buyer, Purchasing Assistant, Purchasing Manager).
+# Descriptions say what differs between raw (as landed) and trusted (normalized).
+# Table-level tags (domain, sensitivity, ...) live in conf/data_tags.yml.
+dataset: buyer
+description: >-
+  Purchasing department employees (buyers, purchasing assistants and purchasing managers).
+  Raw keeps one row per employee, department and pay-rate history entry as landed;
+  trusted keeps one normalized row per employee (the current record).
+columns:
+  businessentityid:
+    description: Employee identifier. Merge key of the trusted table.
+  firstname:
+    description: Employee first name. Trusted is trimmed and lowercase.
+    tags: {pii: true}
+  lastname:
+    description: Employee last name. Trusted is trimmed and lowercase.
+    tags: {pii: true}
+  loginid:
+    description: Network login. Raw keeps the domain prefix (adventure-works\user); trusted keeps only the user name, in lowercase.
+    tags: {pii: true}
+  birthdate:
+    description: Date of birth.
+    tags: {pii: true}
+  maritalstatus:
+    description: Marital status. Raw uses M or S; trusted uses married or single (Not Available otherwise).
+    tags: {pii: true}
+  gender:
+    description: Gender. Raw uses M or F; trusted uses male or female (Not Available otherwise).
+    tags: {pii: true}
+  hiredate:
+    description: Date the employee was hired.
+  jobtitle:
+    description: Job title (Buyer, Purchasing Assistant or Purchasing Manager). Trusted is lowercase.
+  departmentid:
+    description: Identifier of the department of this history record (5 is Purchasing).
+  name:
+    description: Name of the department of this history record. Trusted is lowercase.
+  groupname:
+    description: Department group of this history record (for example Inventory Management). Trusted is lowercase.
+  payfrequency:
+    description: Pay frequency. 1 is monthly salary, 2 is biweekly.
+  rate:
+    description: Hourly pay rate effective since ratechangedate.
+  ratechangedate:
+    description: Date and time the pay rate took effect.
+  startdate:
+    description: Date the employee started in the department of this record.
+  enddate:
+    description: Date the employee left the department of this record. Null for the current department.
+  salariedflag:
+    description: True when the employee is salaried (not paid by the hour), false otherwise.
+  currentflag:
+    description: True when the employee is currently active.
+  birthdate_age:
+    description: Full years between birthdate and the run date. Trusted only.
+  hiredate_age:
+    description: Full years between hiredate and the run date (tenure). Trusted only.

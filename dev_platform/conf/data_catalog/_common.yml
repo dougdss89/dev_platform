@@ -1,0 +1,17 @@
+# Columns added by the platform on every table (ingestion and audit metadata),
+# plus the source-system ELT columns. Applied to any table that has them.
+columns:
+  inserted_date:
+    description: Timestamp when the source system generated the row (source ELT column).
+  modified_date:
+    description: Source system modification marker. 9999-31-12 means the row is current (source ELT column).
+  eltversion:
+    description: Version of the source ELT process that produced the row.
+  __metadata__:
+    description: "Struct with the ingestion metadata: source system, dataset name and ingest type."
+  date_partition:
+    description: Date the row was ingested into the raw layer.
+  _ingested_at:
+    description: Timestamp when the raw layer stamped the row. Carried unchanged into trusted.
+  _source_layer:
+    description: Layer that stamped the audit columns. Stays raw when the row is carried into trusted.
