@@ -19,6 +19,7 @@ dependencies = [
 # (needed so the wheel installs on serverless 3.11) and shadow vanilla pyspark.
 dev = [
     "pytest",
+    "pyyaml",
     "ruff",
     "ipykernel",
 ]
@@ -26,6 +27,7 @@ dev = [
 # — which only supports remote sessions and would shadow pyspark. CI uses only this group.
 test = [
     "pytest",
+    "pyyaml",
     "pyspark~=4.1.0",
 ]
 
@@ -34,6 +36,7 @@ test = [
 customer-ingest = "dev_platform.entrypoints.customer.customer_ingest:main"
 customer-trusted = "dev_platform.entrypoints.customer.customer_trusted:main"
 apply-tags = "dev_platform.entrypoints.apply_tags:main"
+apply-metadata = "dev_platform.entrypoints.apply_metadata:main"
 seed-customer = "dev_platform.entrypoints.customer.seed_customer:main"
 seed-salesperson = "dev_platform.entrypoints.humanresources.seed_salesperson:main"
 seed-buyer = "dev_platform.entrypoints.buyer.seed_buyer:main"
@@ -48,10 +51,11 @@ buyer-trusted = "dev_platform.entrypoints.buyer.buyer_trusted:main"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-# Ship the governance taxonomy inside the wheel so the tag applier can read it at
-# runtime (load_taxonomy). conf/data_tags.yml stays the single editable source.
+# Ship the governance taxonomy and the data catalog inside the wheel so the appliers can read
+# them at runtime (load_taxonomy, load_catalog). conf/ stays the single editable source.
 [tool.hatch.build.targets.wheel.force-include]
 "conf/data_tags.yml" = "dev_platform/governance/data_tags.yml"
+"conf/data_catalog" = "dev_platform/governance/data_catalog"
 
 [tool.ruff]
 line-length = 120
